@@ -1,44 +1,78 @@
-# [Project name]
+# Vigyanics
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+A world-class premium educational technology website for Vigyanics — a STEM, Robotics, AI, Innovation and ATL-focused learning organization.
 
 ## Run & Operate
 
-- `pnpm --filter @workspace/api-server run dev` — run the API server (port 5000)
+- `pnpm --filter @workspace/vigyanics run dev` — run the Vigyanics frontend (port 19502)
+- `pnpm --filter @workspace/api-server run dev` — run the API server (port 8080)
 - `pnpm run typecheck` — full typecheck across all packages
 - `pnpm run build` — typecheck + build all packages
-- `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
-- `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
-- Required env: `DATABASE_URL` — Postgres connection string
 
 ## Stack
 
 - pnpm workspaces, Node.js 24, TypeScript 5.9
-- API: Express 5
-- DB: PostgreSQL + Drizzle ORM
-- Validation: Zod (`zod/v4`), `drizzle-zod`
-- API codegen: Orval (from OpenAPI spec)
-- Build: esbuild (CJS bundle)
+- Frontend: React + Vite, Tailwind CSS v4, Framer Motion
+- Fonts: Inter, Space Grotesk, JetBrains Mono (Google Fonts)
+- Icons: Lucide React
+- Routing: Wouter (single-page, anchor-based)
+- API: Express 5 (backend, minimal use for this landing page)
 
 ## Where things live
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+- `artifacts/vigyanics/src/pages/Home.tsx` — root page, assembles all sections
+- `artifacts/vigyanics/src/components/` — all section components
+- `artifacts/vigyanics/src/index.css` — global theme (CSS variables, animations, glassmorphism utilities)
+- `artifacts/api-server/src/` — Express API server
+
+## Color System
+
+- Deep Space Blue: `#0B1F3A` → `hsl(214 68% 14%)`
+- Electric Cyan: `#00D4FF` → `hsl(190 100% 50%)`
+- Innovation Green: `#00C896` → `hsl(165 100% 39%)`
+- AI Purple: `#8B5CF6` → `hsl(258 90% 66%)`
+
+CSS utilities: `text-vigyanics-blue`, `bg-vigyanics-cyan`, `text-vigyanics-green`, `text-vigyanics-purple`
+
+## Sections Built
+
+1. Navbar — glassmorphism sticky nav with mobile menu
+2. Hero — full-screen with animated neural network background
+3. TrustStats — animated counters (5000+ students, 1200+ projects, 80+ schools, 150+ competitions)
+4. ValueProp — "Learning by Doing" philosophy cards
+5. Programs — 4 programs (STEM Foundations, Robotics, AI & Future Tech, Innovation Labs)
+6. HowItWorks — 3-step visual journey with animated connector
+7. WhyVigyanics — comparison table + floating badges
+8. ForSchools — enterprise section for school decision-makers
+9. ProjectShowcase — interactive project gallery with lightbox
+10. SuccessStories — achievement stories with outcomes
+11. Testimonials — carousel with prev/next controls
+12. DesignedFor — 4 audience cards (Students, Schools, ATL Labs, Innovation Centers)
+13. FinalCTA — full-width CTA with WhatsApp integration
+14. Footer — multi-column with social links
+15. WhatsAppButton — floating pulsing WhatsApp button
 
 ## Architecture decisions
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
-
-## Product
-
-_Describe the high-level user-facing capabilities of this app once they exist._
+- Single-page app with anchor-based smooth scroll navigation (no multi-page routing)
+- All section components are standalone, assembled in Home.tsx
+- WhatsApp links use `wa.me` format — replace `919999999999` with real number
+- Presentation-only site, no backend integration required
+- Glassmorphism via `glass-panel` and `glass-card` CSS utility classes
+- Neural network SVG background is a reusable component (`NeuralBackground.tsx`)
 
 ## User preferences
 
-_Populate as you build — explicit user instructions worth remembering across sessions._
+- No emojis in the UI
+- Premium modern look: fusion of Apple, OpenAI, Stripe, Linear, Tesla aesthetics
+- All 4 brand colors should appear meaningfully throughout (not just decoratively)
 
 ## Gotchas
 
-_Populate as you build — sharp edges, "always run X before Y" rules._
+- WhatsApp phone number (`919999999999`) is a placeholder — must be replaced before going live
+- Google Fonts `@import url(...)` must remain the FIRST line of `index.css`
+- `font-display` Tailwind class maps to Space Grotesk via `@theme inline`
+- AnimatePresence with multiple children must NOT use `mode="wait"`
 
 ## Pointers
 
