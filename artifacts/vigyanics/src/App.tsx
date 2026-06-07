@@ -4,6 +4,9 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
+import Store from "@/pages/Store";
+import ProductDetail from "@/pages/ProductDetail";
+import { CartProvider } from "@/context/CartContext";
 
 const queryClient = new QueryClient();
 
@@ -11,6 +14,10 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
+      <Route path="/store" component={Store} />
+      <Route path="/store/:id">
+        {(params) => <ProductDetail productId={params.id ?? ""} />}
+      </Route>
       <Route component={NotFound} />
     </Switch>
   );
@@ -20,9 +27,11 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-          <Router />
-        </WouterRouter>
+        <CartProvider>
+          <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+            <Router />
+          </WouterRouter>
+        </CartProvider>
         <Toaster />
       </TooltipProvider>
     </QueryClientProvider>

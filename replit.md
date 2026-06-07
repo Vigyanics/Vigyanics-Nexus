@@ -52,6 +52,21 @@ CSS utilities: `text-vigyanics-blue`, `bg-vigyanics-cyan`, `text-vigyanics-green
 14. Footer — multi-column with social links
 15. WhatsAppButton — floating pulsing WhatsApp button
 
+## Store (vigyanics.com/store)
+
+A premium e-commerce store page at `/store`. Navigates to `/store/:id` for product detail pages.
+
+- `artifacts/vigyanics/src/pages/Store.tsx` — store homepage (assembles all store sections)
+- `artifacts/vigyanics/src/pages/ProductDetail.tsx` — individual product detail page
+- `artifacts/vigyanics/src/components/store/` — all store section components
+- `artifacts/vigyanics/src/data/products.ts` — product catalog (12 products across 10 categories)
+- `artifacts/vigyanics/src/context/CartContext.tsx` — global cart + wishlist state
+- `artifacts/vigyanics/src/components/store/CartDrawer.tsx` — slide-out cart drawer
+
+Store sections: StoreHero, FeaturedCategories (10), ProductGrid (Featured / Best Sellers / New Arrivals), SchoolSolutions (ATL packs), CartDrawer, Trust strip
+
+Navbar is context-aware: shows store nav links on `/store`, main nav links on `/`. Cart icon with animated badge lives in the Navbar globally.
+
 ## Architecture decisions
 
 - Single-page app with anchor-based smooth scroll navigation (no multi-page routing)

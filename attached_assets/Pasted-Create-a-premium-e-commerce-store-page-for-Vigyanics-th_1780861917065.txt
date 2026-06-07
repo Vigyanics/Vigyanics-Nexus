@@ -1,0 +1,253 @@
+Create a premium e-commerce store page for Vigyanics that seamlessly integrates with the main website design and visual identity.
+
+STORE PURPOSE
+
+The Vigyanics Store is not a general e-commerce marketplace.
+
+It is a curated STEM, Robotics, AI, Electronics and Innovation Store designed for:
+
+• Students
+• Parents
+• Schools
+• ATL Labs
+• Educators
+• Innovation Centers
+
+The store should feel educational, premium, trustworthy and technology-focused.
+
+VISUAL STYLE
+
+Match the main Vigyanics website.
+
+Inspired by:
+
+* Apple Store
+* DJI Store
+* Nothing Store
+* Stripe Design System
+* Modern STEM Innovation Brands
+
+Use:
+
+• Glassmorphism
+• Premium product cards
+• Soft shadows
+• Hover animations
+• Smooth transitions
+• Gradient highlights
+• Modern typography
+• Interactive product previews
+
+COLOR SYSTEM
+
+Primary:
+Deep Space Blue #0B1F3A
+
+Secondary:
+Electric Cyan #00D4FF
+
+Accent:
+Innovation Green #00C896
+
+Highlight:
+AI Purple #8B5CF6
+
+Background:
+White and Soft Grey
+
+STORE HOMEPAGE STRUCTURE
+
+1. STORE HERO
+
+Large premium banner.
+
+Headline:
+Build. Learn. Innovate.
+
+Subheadline:
+Discover robotics kits, STEM tools, AI learning systems and innovation products designed for future creators.
+
+CTA:
+Shop Now
+
+Include animated robotics and technology visuals.
+
+FEATURED CATEGORIES
+
+Display large interactive category cards.
+
+Categories:
+
+• STEM Kits
+• Robotics Kits
+• AI Learning Kits
+• Electronics Components
+• Sensors & IoT
+• Arduino & Microcontrollers
+• School Innovation Lab Equipment
+• DIY Science Projects
+• Competition & Hackathon Kits
+• Educational Accessories
+
+Cards should have:
+
+* Premium images
+* Hover animations
+* Gradient glow effects
+* Quick navigation
+
+FEATURED PRODUCTS
+
+Show a premium product grid.
+
+Each product card should include:
+
+* Product image
+* Product name
+* Rating
+* Price
+* Discount badge
+* Add to Cart button
+* Wishlist button
+* Quick View option
+
+BEST SELLERS SECTION
+
+Display top-selling products with visual emphasis.
+
+NEW ARRIVALS SECTION
+
+Highlight latest additions with animated labels.
+
+SCHOOL & ATL SOLUTIONS
+
+Dedicated section for institutions.
+
+Show:
+
+* ATL Lab Packages
+* School STEM Bundles
+* Robotics Classroom Kits
+* Innovation Lab Infrastructure
+
+Include bulk-order inquiry CTA.
+
+PRODUCT PAGE DESIGN
+
+Premium product detail page.
+
+Features:
+
+* Large image gallery
+* Zoom functionality
+* 360-degree product viewer
+* Product videos
+* Specifications
+* Learning outcomes
+* Age group recommendation
+* Included components
+* Reviews and ratings
+* Related products
+
+Educational Section:
+
+“What Students Will Learn”
+
+Display:
+
+* STEM concepts
+* Robotics concepts
+* AI applications
+* Coding skills
+* Innovation outcomes
+
+SHOPPING EXPERIENCE
+
+Include:
+
+* Search bar
+* Category filters
+* Price filters
+* Rating filters
+* Availability filters
+* Sort options
+* Product comparison
+
+CART EXPERIENCE
+
+Modern slide-out cart.
+
+Features:
+
+* Quantity adjustment
+* Save for later
+* Coupon support
+* Shipping calculation
+* Recommended products
+
+CHECKOUT EXPERIENCE
+
+Clean premium checkout.
+
+Features:
+
+* Guest checkout
+* Address management
+* Multiple payment methods
+* Order summary
+* Secure payment indicators
+
+ACCOUNT DASHBOARD
+
+Users can:
+
+* View orders
+* Track shipments
+* Download invoices
+* Manage addresses
+* Manage wishlist
+
+SOCIAL PROOF
+
+Display:
+
+* Customer reviews
+* Product ratings
+* Success stories
+* School purchases
+* Student project showcases
+
+ANIMATIONS
+
+Use Framer Motion for:
+
+* Product hover effects
+* Add to cart animations
+* Page transitions
+* Category interactions
+* Smooth filtering experience
+
+TECHNICAL REQUIREMENTS
+
+* Next.js 16
+* Tailwind CSS v4
+* Framer Motion
+* Responsive design
+* SEO optimized
+* Fast loading
+* Product search
+* Product filtering
+* Shopping cart
+* Wishlist
+* Secure checkout
+* Inventory-ready architecture
+
+FINAL EXPERIENCE
+
+When users enter the store, they should feel:
+
+“This is not a generic online shop.”
+
+“This is a premium innovation marketplace where students and schools discover tools to build the future.”
+
+The design should feel educational, futuristic, trustworthy and visually comparable to leading technology product stores.
