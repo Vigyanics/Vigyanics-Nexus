@@ -4,12 +4,14 @@ import { Menu, X, Atom, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/context/CartContext";
 import { motion, AnimatePresence } from "framer-motion";
+import { useIntro } from "@/context/IntroContext";
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [location, navigate] = useLocation();
   const { totalItems, openCart } = useCart();
+  const { introComplete } = useIntro();
   const isStore = location.startsWith("/store");
 
   useEffect(() => {
@@ -37,7 +39,13 @@ export default function Navbar() {
   const navLinks = isStore ? storeNavLinks : mainNavLinks;
 
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? "glass-panel py-3" : "bg-transparent py-5"}`}>
+    <motion.nav
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? "glass-panel py-3" : "bg-transparent py-5"}`}
+      initial={{ opacity: 0, y: -16 }}
+      animate={(introComplete || isStore) ? { opacity: 1, y: 0 } : { opacity: 0, y: -16 }}
+      transition={{ duration: 0.7, ease: "easeOut" }}
+      style={{ pointerEvents: (introComplete || isStore) ? "auto" : "none" }}
+    >
       <div className="container mx-auto px-4 md:px-6 flex items-center justify-between">
         {/* Logo */}
         <a
@@ -173,6 +181,6 @@ export default function Navbar() {
           </motion.div>
         )}
       </AnimatePresence>
-    </nav>
+    </motion.nav>
   );
 }
