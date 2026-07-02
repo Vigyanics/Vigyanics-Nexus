@@ -1,37 +1,43 @@
 import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
-import { Building2, GraduationCap, BookOpen, Trophy, Wrench, ArrowRight } from "lucide-react";
+import { Building2, GraduationCap, BookOpen, Trophy, Wrench, Users, ArrowRight } from "lucide-react";
 
 const offerings = [
   {
     icon: Building2,
-    title: "ATL Lab Setup & Management",
-    description: "End-to-end Atal Tinkering Lab setup — from procurement to interior design to operational support. We handle everything so you can focus on students.",
+    title: "ATL & Innovation Lab Support",
+    description: "End-to-end Atal Tinkering Lab setup — from procurement to operations. NITI Aayog compliant documentation and reporting support included.",
     color: "#00D4FF",
   },
   {
     icon: Wrench,
-    title: "Innovation Lab Development",
-    description: "Transform empty rooms into world-class innovation labs with curated equipment, tools, and learning stations designed for exploratory STEM learning.",
+    title: "STEM Workshops & Robotics Programs",
+    description: "Structured STEM and robotics workshops for students of all levels. Curriculum-mapped sessions that complement school timetables.",
     color: "#00C896",
   },
   {
     icon: GraduationCap,
-    title: "Teacher Training & Upskilling",
-    description: "Intensive workshops and ongoing support for teachers to confidently facilitate project-based STEM learning — no prior experience needed.",
+    title: "Teacher Enablement & Training",
+    description: "Intensive workshops and ongoing upskilling for teachers to confidently facilitate project-based STEM learning — no prior experience needed.",
     color: "#8B5CF6",
   },
   {
-    icon: BookOpen,
-    title: "STEM Curriculum Integration",
-    description: "Structured curriculum mapped to CBSE, ICSE, and NITI Aayog ATL frameworks. Weekly sessions, lesson plans, and student workbooks included.",
+    icon: Trophy,
+    title: "Science Fair & Exhibition Support",
+    description: "Project ideation, mentoring and technical support to help students prepare winning projects for school exhibitions and science fairs.",
     color: "#F59E0B",
   },
   {
-    icon: Trophy,
-    title: "Competition Mentoring",
-    description: "Prepare students for national and state-level competitions — from science olympiads to robotics championships to Smart India Hackathon.",
+    icon: BookOpen,
+    title: "Curriculum-Aligned Project Learning",
+    description: "Structured project-based learning programs mapped to CBSE, ICSE, and NITI Aayog ATL frameworks with lesson plans and workbooks.",
     color: "#EF4444",
+  },
+  {
+    icon: Users,
+    title: "Hands-On Innovation Culture",
+    description: "Build a lasting culture of curiosity and making at your school — through maker events, innovation clubs and inter-school competitions.",
+    color: "#00D4FF",
   },
 ];
 
@@ -73,8 +79,8 @@ export default function ForSchools() {
               For Schools & ATL Labs
             </span>
             <h2 className="text-4xl md:text-5xl font-display font-bold text-vigyanics-blue mt-4 mb-6 leading-tight">
-              Transform Your School into an
-              <span className="text-gradient"> Innovation Hub</span>
+              Empowering Schools Through
+              <span className="text-gradient"> Innovation & STEM Learning</span>
             </h2>
             <p className="text-lg text-gray-600 leading-relaxed mb-10">
               Vigyanics partners with schools across India to build world-class STEM infrastructure, train educators, and mentor students from day one. We don't just deliver equipment — we deliver outcomes.
@@ -98,35 +104,33 @@ export default function ForSchools() {
             <motion.a
               href="#contact"
               whileHover={{ x: 4 }}
-              className="inline-flex items-center gap-2 text-vigyanics-blue font-semibold text-base group"
+              className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-vigyanics-blue text-white font-semibold text-base shadow-lg hover:bg-vigyanics-cyan hover:text-vigyanics-blue transition-all duration-300 group"
               data-testid="link-school-partnership"
             >
-              Start a school partnership
+              Partner With Us
               <ArrowRight className="w-5 h-5 transition-transform duration-200 group-hover:translate-x-1" />
             </motion.a>
           </motion.div>
 
           {/* Right: Feature cards */}
-          <div className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {offerings.map((item, idx) => (
               <motion.div
                 key={idx}
-                initial={{ opacity: 0, x: 40 }}
-                animate={isInView ? { opacity: 1, x: 0 } : {}}
-                transition={{ duration: 0.5, delay: 0.15 + idx * 0.1 }}
-                whileHover={{ x: 4, transition: { duration: 0.2 } }}
-                className="flex items-start gap-5 p-5 rounded-2xl bg-white border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 cursor-default group"
+                initial={{ opacity: 0, y: 30 }}
+                animate={isInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.5, delay: 0.1 + idx * 0.08 }}
+                whileHover={{ y: -4, transition: { duration: 0.2 } }}
+                className="p-5 rounded-2xl bg-white border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 cursor-default group"
               >
                 <div
-                  className="flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center transition-transform duration-300 group-hover:scale-110"
+                  className="flex-shrink-0 w-11 h-11 rounded-xl flex items-center justify-center mb-4 transition-transform duration-300 group-hover:scale-110"
                   style={{ background: `${item.color}15`, border: `1.5px solid ${item.color}30` }}
                 >
                   <item.icon className="w-5 h-5" style={{ color: item.color }} />
                 </div>
-                <div>
-                  <h4 className="font-display font-semibold text-vigyanics-blue mb-1 text-base">{item.title}</h4>
-                  <p className="text-gray-500 text-sm leading-relaxed">{item.description}</p>
-                </div>
+                <h4 className="font-display font-semibold text-vigyanics-blue mb-2 text-sm">{item.title}</h4>
+                <p className="text-gray-500 text-xs leading-relaxed">{item.description}</p>
               </motion.div>
             ))}
           </div>

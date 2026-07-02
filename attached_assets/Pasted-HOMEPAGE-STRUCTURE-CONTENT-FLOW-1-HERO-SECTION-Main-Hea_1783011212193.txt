@@ -1,0 +1,209 @@
+HOMEPAGE STRUCTURE & CONTENT FLOW
+
+1. HERO SECTION
+
+Main Heading
+
+Turn Curiosity Into Real Projects
+
+Subheading
+
+Hands-on STEM, Robotics & Innovation learning with expert guidance, real project building and practical execution support.
+
+Supporting Statement
+
+We Don’t Just Sell. We Teach, Guide & Build With You.
+
+Buttons
+
+- Explore Programs
+- Visit Store
+
+Image / Video Requirement
+
+Use real-looking Indian students building robotics, electronics or STEM projects in an innovation lab or classroom environment.
+
+---
+
+2. PROGRAMS / OFFERINGS SECTION
+
+Section Heading
+
+Explore Our Programs
+
+STEM Learning
+
+Hands-on STEM learning through practical experimentation, scientific thinking and project-based activities.
+
+Robotics & Electronics
+
+Learn robotics, Arduino, sensors, automation and electronics through real-world projects and guided experimentation.
+
+DIY Kits & Teaching Aids
+
+Interactive DIY kits, educational tools and learning aids designed to simplify STEM concepts through practical application.
+
+Innovation Labs & ATL Support
+
+Support for schools and institutions to build innovation-driven learning environments aligned with ATL and NEP vision.
+
+Project Guidance & Mentorship
+
+Expert guidance, troubleshooting and mentoring support for school, college and innovation projects.
+
+Prototype Development Support
+
+Support for building prototypes, working models and hardware projects for students, innovators and early-stage ideas.
+
+Image Requirement
+
+Use visuals of students experimenting, building projects, working with robotics kits and electronics.
+
+---
+
+3. WHY VIGYANICS SECTION
+
+Section Heading
+
+Why Vigyanics?
+
+Learn by Building
+
+Students learn concepts better through hands-on experimentation and real-world project building.
+
+Guidance Beyond Kits
+
+We provide mentorship, troubleshooting and support throughout the learning and building journey.
+
+Practical Innovation
+
+Focus on creativity, experimentation and execution instead of only theoretical learning.
+
+Components + Learning Ecosystem
+
+Access electronics components, DIY kits and educational support together under one ecosystem.
+
+Support for Schools & Innovation Labs
+
+Programs, workshops and innovation support aligned with ATL and modern STEM learning initiatives.
+
+Image Requirement
+
+Use visuals showing project building, electronics experimentation and students interacting with working models.
+
+---
+
+4. STORE / COMPONENTS SECTION
+
+Section Heading
+
+More Than Just Electronics Components
+
+Subheading
+
+Components, kits and practical learning support — all in one ecosystem.
+
+Content Points
+
+- Arduino, sensors, modules and electronics components
+- Robotics kits and STEM learning kits
+- Guidance on how components work
+- Support for projects and troubleshooting
+- Assistance for beginners and innovators
+
+Supporting Statement
+
+We Don’t Just Sell. We Teach, Guide & Build With You.
+
+Button
+
+Explore Store
+
+Image Requirement
+
+Use visuals of electronics components, DIY kits, Arduino boards and students testing electronics projects.
+
+---
+
+5. ATL / SCHOOLS SECTION
+
+Section Heading
+
+Empowering Schools Through Innovation & STEM Learning
+
+Content
+
+- ATL and innovation lab support
+- STEM workshops and robotics programs
+- Teacher enablement and training
+- Science fair and exhibition support
+- Curriculum-aligned project-based learning
+- Hands-on innovation culture for students
+
+Button
+
+Partner With Us
+
+Image Requirement
+
+Use visuals of school innovation labs, exhibitions, robotics workshops and students presenting projects.
+
+---
+
+6. PROJECT SHOWCASE SECTION
+
+Section Heading
+
+Projects Built Through Curiosity & Innovation
+
+Example Categories
+
+- Robotics Projects
+- STEM Models
+- IoT Systems
+- Physics Working Models
+- Smart Automation
+- Arduino Projects
+- DIY Electronics
+- Innovation Prototypes
+
+Image Requirement
+
+Use real project photos or project mockups with students interacting with them.
+
+---
+
+7. MENTORSHIP / SUPPORT SECTION
+
+Section Heading
+
+Got Stuck? We Help You Build Further.
+
+Content
+
+From understanding components to troubleshooting projects, our experts help students and makers through every stage of the journey.
+
+Support Areas
+
+- Project guidance
+- Troubleshooting
+- Electronics understanding
+- Robotics assistance
+- Innovation mentoring
+- Execution support
+
+Button
+
+Get Guidance
+
+Image Requirement
+
+Use visuals showing mentors helping students with testing, troubleshooting and project discussions.
+
+---
+
+8. FOOTER
+
+Tagline
+
+Where Curiosity Meets Creation

@@ -36,8 +36,11 @@ export default function Footer() {
               </div>
               <span className="font-display font-bold text-xl text-white">Vigyanics</span>
             </a>
+            <p className="text-gray-400 text-sm leading-relaxed mb-2 max-w-xs font-semibold text-vigyanics-cyan/80 italic">
+              Where Curiosity Meets Creation
+            </p>
             <p className="text-gray-400 text-sm leading-relaxed mb-6 max-w-xs">
-              We don't just teach — we help students build, explore and innovate.
+              We don't just sell. We teach, guide and build with you.
             </p>
             <div className="flex gap-3">
               {[

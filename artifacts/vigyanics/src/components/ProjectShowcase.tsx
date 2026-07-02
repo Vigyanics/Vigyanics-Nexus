@@ -1,11 +1,11 @@
 import { useRef, useState } from "react";
 import { motion, useInView, AnimatePresence } from "framer-motion";
-import { Bot, Cpu, Brain, Zap, Wifi, X } from "lucide-react";
+import { Bot, Cpu, Brain, Zap, Wifi, Wrench, FlaskConical, Lightbulb, X } from "lucide-react";
 
 const projects = [
   {
     icon: Bot,
-    category: "Robotics",
+    category: "Robotics Projects",
     title: "Autonomous Line Follower",
     description: "A self-navigating robot that follows complex paths using infrared sensors and PID control — built by Class 8 students in 6 weeks.",
     tech: ["Arduino", "IR Sensors", "PID Control"],
@@ -14,8 +14,8 @@ const projects = [
   },
   {
     icon: Wifi,
-    category: "IoT / Smart Home",
-    title: "Smart Home Automation System",
+    category: "IoT Systems",
+    title: "Smart Home Automation",
     description: "Voice-controlled home automation with real-time monitoring — controls lights, fans, and security using NodeMCU and a custom Android app.",
     tech: ["NodeMCU", "MQTT", "Android"],
     color: "#00C896",
@@ -23,7 +23,7 @@ const projects = [
   },
   {
     icon: Brain,
-    category: "AI Application",
+    category: "AI Applications",
     title: "Face Recognition Attendance",
     description: "An AI-powered attendance system using OpenCV and deep learning — marks student attendance automatically from a classroom camera feed.",
     tech: ["Python", "OpenCV", "TensorFlow"],
@@ -32,7 +32,7 @@ const projects = [
   },
   {
     icon: Cpu,
-    category: "Electronics",
+    category: "Arduino Projects",
     title: "ECG Heart Monitor",
     description: "A wearable ECG monitor built with precision analog circuits that captures real heart signals and displays them on an OLED screen.",
     tech: ["Op-Amp", "OLED", "Signal Processing"],
@@ -41,7 +41,7 @@ const projects = [
   },
   {
     icon: Zap,
-    category: "Energy / Innovation",
+    category: "Smart Automation",
     title: "Solar-Powered Water Purifier",
     description: "A solar-powered UV water purification system designed for rural areas — won Regional Innovation Award at Class 10 level.",
     tech: ["Solar Panel", "UV LEDs", "Arduino"],
@@ -49,15 +49,40 @@ const projects = [
     level: "Beginner",
   },
   {
-    icon: Bot,
-    category: "Robotics",
+    icon: FlaskConical,
+    category: "STEM Models",
+    title: "Bridge Load Testing Model",
+    description: "A scientifically designed bridge model with embedded sensors to measure stress distribution — used for physics project exhibitions.",
+    tech: ["Force Sensors", "Arduino", "Data Logging"],
+    color: "#00D4FF",
+    level: "Intermediate",
+  },
+  {
+    icon: Wrench,
+    category: "DIY Electronics",
+    title: "Custom Frequency Generator",
+    description: "A precision signal generator built from discrete components — capable of producing sine, square and triangle waves for electronics lab use.",
+    tech: ["Op-Amps", "555 Timer", "Oscilloscope"],
+    color: "#00C896",
+    level: "Expert",
+  },
+  {
+    icon: Lightbulb,
+    category: "Innovation Prototypes",
     title: "Maze-Solving Robot",
     description: "An autonomous robot that maps and solves any maze using flood-fill algorithm and ultrasonic sensors — national competition finalist.",
     tech: ["Raspberry Pi", "Ultrasonic", "A* Algorithm"],
-    color: "#00D4FF",
+    color: "#8B5CF6",
     level: "Expert",
   },
 ];
+
+const levelColor: Record<string, string> = {
+  Beginner: "#00C896",
+  Intermediate: "#00D4FF",
+  Advanced: "#F59E0B",
+  Expert: "#8B5CF6",
+};
 
 export default function ProjectShowcase() {
   const ref = useRef(null);
@@ -93,27 +118,28 @@ export default function ProjectShowcase() {
             Student Work
           </span>
           <h2 className="text-4xl md:text-6xl font-display font-bold text-white mt-4 mb-6">
-            Projects That <span className="text-vigyanics-cyan">Inspire</span>
+            Projects Built Through
+            <br />
+            <span className="text-vigyanics-cyan">Curiosity & Innovation</span>
           </h2>
           <p className="text-lg text-gray-400 max-w-xl mx-auto">
-            Real projects built by real students. These aren't demos — they're working systems built from scratch.
+            Real projects built by real students — working systems, science models and innovation prototypes built from scratch.
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
           {projects.map((proj, idx) => (
             <motion.div
               key={idx}
               initial={{ opacity: 0, y: 40 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.5, delay: idx * 0.09 }}
+              transition={{ duration: 0.5, delay: idx * 0.07 }}
               whileHover={{ y: -5, transition: { duration: 0.2 } }}
               onClick={() => setActive(idx)}
               className="relative group rounded-2xl p-6 cursor-pointer overflow-hidden border border-white/10"
               style={{ background: "rgba(255,255,255,0.04)", backdropFilter: "blur(8px)" }}
               data-testid={`card-project-${idx}`}
             >
-              {/* Hover glow */}
               <div
                 className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl"
                 style={{ background: `radial-gradient(circle at 30% 30%, ${proj.color}20, transparent 70%)` }}
@@ -121,34 +147,33 @@ export default function ProjectShowcase() {
 
               <div className="flex items-center justify-between mb-5">
                 <div
-                  className="w-12 h-12 rounded-xl flex items-center justify-center transition-transform duration-300 group-hover:scale-110"
+                  className="w-11 h-11 rounded-xl flex items-center justify-center transition-transform duration-300 group-hover:scale-110"
                   style={{ background: `${proj.color}15`, border: `1.5px solid ${proj.color}30` }}
                 >
-                  <proj.icon className="w-6 h-6" style={{ color: proj.color }} />
+                  <proj.icon className="w-5 h-5" style={{ color: proj.color }} />
                 </div>
-                <div className="flex gap-2">
-                  <span
-                    className="text-xs px-2.5 py-1 rounded-full font-medium"
-                    style={{ background: `${proj.color}15`, color: proj.color }}
-                  >
-                    {proj.category}
-                  </span>
-                </div>
+                <span
+                  className="text-xs px-2 py-0.5 rounded-full font-semibold"
+                  style={{ background: `${levelColor[proj.level]}20`, color: levelColor[proj.level] }}
+                >
+                  {proj.level}
+                </span>
               </div>
 
-              <h3 className="text-lg font-display font-bold text-white mb-2 group-hover:text-vigyanics-cyan transition-colors duration-200">{proj.title}</h3>
-              <p className="text-gray-400 text-sm leading-relaxed mb-5 line-clamp-2">{proj.description}</p>
+              <div className="text-xs font-semibold mb-1.5" style={{ color: proj.color }}>{proj.category}</div>
+              <h3 className="text-base font-display font-bold text-white mb-2 group-hover:text-vigyanics-cyan transition-colors duration-200 leading-tight">{proj.title}</h3>
+              <p className="text-gray-400 text-xs leading-relaxed mb-4 line-clamp-2">{proj.description}</p>
 
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-1.5">
                 {proj.tech.map((t, i) => (
-                  <span key={i} className="text-xs px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-gray-400">
+                  <span key={i} className="text-xs px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-gray-400">
                     {t}
                   </span>
                 ))}
               </div>
 
               <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-xs font-medium" style={{ color: proj.color }}>
-                View details
+                View details →
               </div>
             </motion.div>
           ))}

@@ -1,16 +1,38 @@
 import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
-import { Check, X } from "lucide-react";
+import { Hammer, Compass, Lightbulb, Package, School } from "lucide-react";
 
-const features = [
-  { label: "Project-based learning", us: true, them: false },
-  { label: "Personalized mentorship", us: true, them: false },
-  { label: "ATL curriculum alignment", us: true, them: false },
-  { label: "Future-ready curriculum", us: true, them: false },
-  { label: "Innovation culture", us: true, them: false },
-  { label: "Competition support", us: true, them: false },
-  { label: "Real hardware & software", us: true, them: false },
-  { label: "Outcome-based assessment", us: true, them: false },
+const reasons = [
+  {
+    icon: Hammer,
+    title: "Learn by Building",
+    description: "Students learn concepts better through hands-on experimentation and real-world project building — not just reading or listening.",
+    color: "#00D4FF",
+  },
+  {
+    icon: Compass,
+    title: "Guidance Beyond Kits",
+    description: "We provide mentorship, troubleshooting and support throughout the entire learning and building journey — not just the kit delivery.",
+    color: "#00C896",
+  },
+  {
+    icon: Lightbulb,
+    title: "Practical Innovation",
+    description: "Focus on creativity, experimentation and execution instead of only theoretical learning. Every session ends with something built.",
+    color: "#8B5CF6",
+  },
+  {
+    icon: Package,
+    title: "Components + Learning Ecosystem",
+    description: "Access electronics components, DIY kits and educational support together under one ecosystem — no need to juggle multiple vendors.",
+    color: "#F59E0B",
+  },
+  {
+    icon: School,
+    title: "Support for Schools & Innovation Labs",
+    description: "Programs, workshops and innovation support fully aligned with ATL and modern STEM learning initiatives for every school level.",
+    color: "#EF4444",
+  },
 ];
 
 const badges = [
@@ -19,7 +41,7 @@ const badges = [
   { label: "Competition Ready", color: "#8B5CF6" },
   { label: "Future-Ready", color: "#F59E0B" },
   { label: "Mentor-Led", color: "#EF4444" },
-  { label: "Research Oriented", color: "#00D4FF" },
+  { label: "NEP Vision", color: "#00D4FF" },
 ];
 
 export default function WhyVigyanics() {
@@ -53,51 +75,41 @@ export default function WhyVigyanics() {
             The Difference
           </span>
           <h2 className="text-4xl md:text-6xl font-display font-bold text-white mt-4 mb-6">
-            Why Choose <span className="text-vigyanics-cyan">Vigyanics</span>
+            Why <span className="text-vigyanics-cyan">Vigyanics?</span>
           </h2>
           <p className="text-lg text-gray-300 max-w-xl mx-auto">
-            Not all STEM programs are built equal. Here's what makes Vigyanics different.
+            Not all STEM programs are built equal. Here's what makes Vigyanics different from everything else.
           </p>
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          {/* Comparison table */}
-          <motion.div
-            initial={{ opacity: 0, x: -40 }}
-            animate={isInView ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.7, delay: 0.2 }}
-            className="rounded-2xl overflow-hidden border border-white/10"
-            style={{ background: "rgba(255,255,255,0.04)", backdropFilter: "blur(12px)" }}
-          >
-            <div className="grid grid-cols-3 px-6 py-4 border-b border-white/10">
-              <span className="text-sm font-semibold text-gray-400 col-span-1">Feature</span>
-              <span className="text-sm font-bold text-vigyanics-cyan text-center">Vigyanics</span>
-              <span className="text-sm font-semibold text-gray-500 text-center">Others</span>
-            </div>
-            {features.map((f, idx) => (
+          {/* Left: Reason cards */}
+          <div className="space-y-4">
+            {reasons.map((r, idx) => (
               <motion.div
                 key={idx}
-                initial={{ opacity: 0, x: -20 }}
+                initial={{ opacity: 0, x: -30 }}
                 animate={isInView ? { opacity: 1, x: 0 } : {}}
-                transition={{ duration: 0.4, delay: 0.3 + idx * 0.07 }}
-                className="grid grid-cols-3 px-6 py-3.5 border-b border-white/5 hover:bg-white/3 transition-colors"
+                transition={{ duration: 0.5, delay: 0.15 + idx * 0.1 }}
+                whileHover={{ x: 4, transition: { duration: 0.2 } }}
+                className="flex items-start gap-4 p-5 rounded-2xl border border-white/8 group cursor-default transition-all duration-300"
+                style={{ background: "rgba(255,255,255,0.04)", backdropFilter: "blur(10px)" }}
               >
-                <span className="text-sm text-gray-300 col-span-1 flex items-center">{f.label}</span>
-                <div className="flex justify-center">
-                  <div className="w-6 h-6 rounded-full bg-vigyanics-green/20 border border-vigyanics-green/40 flex items-center justify-center">
-                    <Check className="w-3.5 h-3.5 text-vigyanics-green" />
-                  </div>
+                <div
+                  className="flex-shrink-0 w-11 h-11 rounded-xl flex items-center justify-center transition-transform duration-300 group-hover:scale-110"
+                  style={{ background: `${r.color}20`, border: `1.5px solid ${r.color}40` }}
+                >
+                  <r.icon className="w-5 h-5" style={{ color: r.color }} />
                 </div>
-                <div className="flex justify-center">
-                  <div className="w-6 h-6 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center">
-                    <X className="w-3.5 h-3.5 text-red-400" />
-                  </div>
+                <div>
+                  <h4 className="font-display font-bold text-white text-base mb-1">{r.title}</h4>
+                  <p className="text-gray-400 text-sm leading-relaxed">{r.description}</p>
                 </div>
               </motion.div>
             ))}
-          </motion.div>
+          </div>
 
-          {/* Floating badges */}
+          {/* Right: Badges + stats */}
           <motion.div
             initial={{ opacity: 0, x: 40 }}
             animate={isInView ? { opacity: 1, x: 0 } : {}}
@@ -117,7 +129,7 @@ export default function WhyVigyanics() {
                     background: `${badge.color}15`,
                     border: `1.5px solid ${badge.color}40`,
                     color: badge.color,
-                    boxShadow: `0 4px 20px ${badge.color}20`
+                    boxShadow: `0 4px 20px ${badge.color}20`,
                   }}
                 >
                   {badge.label}

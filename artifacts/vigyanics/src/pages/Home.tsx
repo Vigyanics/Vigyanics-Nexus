@@ -6,7 +6,9 @@ import Programs from "@/components/Programs";
 import HowItWorks from "@/components/HowItWorks";
 import WhyVigyanics from "@/components/WhyVigyanics";
 import ForSchools from "@/components/ForSchools";
+import StoreSection from "@/components/StoreSection";
 import ProjectShowcase from "@/components/ProjectShowcase";
+import MentorshipSupport from "@/components/MentorshipSupport";
 import SuccessStories from "@/components/SuccessStories";
 import Testimonials from "@/components/Testimonials";
 import DesignedFor from "@/components/DesignedFor";
@@ -26,7 +28,9 @@ export default function Home() {
         <HowItWorks />
         <WhyVigyanics />
         <ForSchools />
+        <StoreSection />
         <ProjectShowcase />
+        <MentorshipSupport />
         <SuccessStories />
         <Testimonials />
         <DesignedFor />
