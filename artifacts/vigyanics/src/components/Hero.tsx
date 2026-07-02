@@ -4,16 +4,28 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { useIntro } from "@/context/IntroContext";
 
+const LOOP_END_SECONDS = 6;
+
 export default function Hero() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const { introComplete, setIntroComplete } = useIntro();
+  const isFirstPlay = useRef(true);
 
   function handleVideoEnd() {
+    // First play finished — reveal UI and begin the 0→6s loop
     setIntroComplete(true);
-    // Switch to looping after the first play completes
+    isFirstPlay.current = false;
     if (videoRef.current) {
-      videoRef.current.loop = true;
+      videoRef.current.currentTime = 0;
       videoRef.current.play();
+    }
+  }
+
+  function handleTimeUpdate() {
+    if (!isFirstPlay.current && videoRef.current) {
+      if (videoRef.current.currentTime >= LOOP_END_SECONDS) {
+        videoRef.current.currentTime = 0;
+      }
     }
   }
 
@@ -23,7 +35,7 @@ export default function Hero() {
       className="relative min-h-[100dvh] flex items-center justify-center overflow-hidden"
       style={{ paddingTop: introComplete ? undefined : 0 }}
     >
-      {/* Full-screen video — no controls, no loop initially */}
+      {/* Full-screen video — plays fully once, then loops 0→6s */}
       <video
         ref={videoRef}
         className="absolute inset-0 w-full h-full object-cover z-0"
@@ -33,6 +45,7 @@ export default function Hero() {
         playsInline
         preload="auto"
         onEnded={handleVideoEnd}
+        onTimeUpdate={handleTimeUpdate}
       />
 
       {/* Dark overlay — only visible after intro */}
