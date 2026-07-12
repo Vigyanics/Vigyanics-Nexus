@@ -1,0 +1,161 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-sidebar: hsl(var(--sidebar));
+  --color-sidebar-foreground: hsl(var(--sidebar-foreground));
+  --color-sidebar-border: hsl(var(--sidebar-border));
+  --color-sidebar-accent: hsl(var(--sidebar-accent));
+  --color-sidebar-accent-foreground: hsl(var(--sidebar-accent-foreground));
+  --color-cyan: hsl(var(--cyan));
+  --color-green: hsl(var(--green));
+  --color-purple: hsl(var(--purple));
+  --font-sans: var(--app-font-sans);
+  --font-display: var(--app-font-display);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+}
+
+:root {
+  --app-font-sans: 'Inter', sans-serif;
+  --app-font-display: 'Space Grotesk', sans-serif;
+  --radius: 0.625rem;
+
+  /* Always dark — admin panel is dark-mode only */
+  --background: 214 68% 8%;
+  --foreground: 210 40% 94%;
+  --border: 214 30% 18%;
+  --input: 214 30% 14%;
+  --ring: 190 100% 50%;
+
+  --card: 214 50% 11%;
+  --card-foreground: 210 40% 94%;
+
+  --popover: 214 50% 11%;
+  --popover-foreground: 210 40% 94%;
+
+  --primary: 190 100% 50%;
+  --primary-foreground: 214 68% 8%;
+
+  --secondary: 214 30% 18%;
+  --secondary-foreground: 210 40% 80%;
+
+  --muted: 214 30% 14%;
+  --muted-foreground: 214 20% 55%;
+
+  --accent: 258 90% 66%;
+  --accent-foreground: 0 0% 100%;
+
+  --destructive: 0 72% 51%;
+  --destructive-foreground: 0 0% 100%;
+
+  --sidebar: 214 68% 6%;
+  --sidebar-foreground: 210 40% 80%;
+  --sidebar-border: 214 30% 15%;
+  --sidebar-accent: 214 40% 14%;
+  --sidebar-accent-foreground: 210 40% 94%;
+
+  --cyan: 190 100% 50%;
+  --green: 165 100% 39%;
+  --purple: 258 90% 66%;
+}
+
+@layer base {
+  * {
+    @apply border-border box-border;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--app-font-display);
+  }
+}
+
+@layer utilities {
+  .glass-card {
+    background: rgba(11, 31, 58, 0.6);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(0, 212, 255, 0.1);
+  }
+  .stat-card {
+    background: linear-gradient(135deg, rgba(11, 31, 58, 0.8) 0%, rgba(14, 40, 74, 0.8) 100%);
+    border: 1px solid rgba(0, 212, 255, 0.15);
+    backdrop-filter: blur(16px);
+  }
+  .sidebar-link {
+    @apply flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-sidebar-foreground transition-all duration-200;
+  }
+  .sidebar-link:hover {
+    @apply bg-sidebar-accent text-foreground;
+  }
+  .sidebar-link.active {
+    background: rgba(0, 212, 255, 0.12);
+    color: hsl(var(--cyan));
+    border: 1px solid rgba(0, 212, 255, 0.2);
+  }
+  .btn-primary {
+    @apply bg-primary text-primary-foreground font-semibold px-4 py-2 rounded-lg text-sm transition-all duration-200;
+  }
+  .btn-primary:hover {
+    opacity: 0.85;
+    transform: translateY(-1px);
+  }
+  .btn-ghost {
+    @apply text-muted-foreground px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200;
+  }
+  .btn-ghost:hover {
+    @apply bg-secondary text-foreground;
+  }
+  .btn-danger {
+    @apply bg-destructive text-destructive-foreground font-semibold px-4 py-2 rounded-lg text-sm transition-all duration-200;
+  }
+  .table-row-hover:hover {
+    background: rgba(0, 212, 255, 0.04);
+  }
+  .badge-draft { @apply bg-secondary text-muted-foreground px-2 py-0.5 rounded-full text-xs font-medium; }
+  .badge-published { background: rgba(0, 200, 150, 0.15); color: hsl(var(--green)); @apply px-2 py-0.5 rounded-full text-xs font-medium; }
+  .badge-archived { @apply bg-destructive/15 text-destructive px-2 py-0.5 rounded-full text-xs font-medium; }
+  .badge-pending { background: rgba(251, 191, 36, 0.15); color: #fbbf24; @apply px-2 py-0.5 rounded-full text-xs font-medium; }
+  .badge-processing { background: rgba(0, 212, 255, 0.15); color: hsl(var(--cyan)); @apply px-2 py-0.5 rounded-full text-xs font-medium; }
+  .badge-shipped { background: rgba(139, 92, 246, 0.15); color: hsl(var(--purple)); @apply px-2 py-0.5 rounded-full text-xs font-medium; }
+  .badge-delivered { background: rgba(0, 200, 150, 0.15); color: hsl(var(--green)); @apply px-2 py-0.5 rounded-full text-xs font-medium; }
+  .badge-cancelled { @apply bg-destructive/15 text-destructive px-2 py-0.5 rounded-full text-xs font-medium; }
+  .input-field {
+    @apply w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder-muted-foreground outline-none transition-all duration-200;
+  }
+  .input-field:focus {
+    border-color: hsl(var(--cyan));
+    box-shadow: 0 0 0 2px rgba(0, 212, 255, 0.1);
+  }
+  .glow-cyan { box-shadow: 0 0 20px rgba(0, 212, 255, 0.15); }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: hsl(var(--background)); }
+::-webkit-scrollbar-thumb { background: hsl(var(--border)); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: hsl(var(--muted-foreground)); }

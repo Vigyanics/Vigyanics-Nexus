@@ -1,0 +1,329 @@
+We are now implementing a production-ready Admin Control Panel for the Vigyanics website.
+
+IMPORTANT:
+This should NOT be a simple CRUD page.
+
+Build it like a real enterprise e-commerce admin dashboard.
+
+========================================
+AUTHENTICATION
+========================================
+
+Create Role Based Authentication.
+
+Roles:
+
+1. Customer
+2. Admin
+3. Super Admin
+
+Customers can register normally.
+
+Admins CANNOT register through the website.
+
+Only Super Admin can create new Admin accounts.
+
+Create separate authentication.
+
+Customer Login
+
+/signup
+/login
+
+Admin Login
+
+/admin/login
+
+If someone without admin privileges tries accessing /admin they should automatically be redirected.
+
+========================================
+ADMIN DASHBOARD
+========================================
+
+After login the Admin should reach a premium dashboard.
+
+Dashboard Cards:
+
+• Total Products
+• Active Listings
+• Orders
+• Revenue
+• Total Customers
+• Low Stock Items
+• Pending Orders
+
+Recent Activity Panel
+
+Recent Orders
+
+Analytics Charts
+
+========================================
+PRODUCT MANAGEMENT
+========================================
+
+Admin can
+
+Create Product
+
+Edit Product
+
+Delete Product
+
+Hide Product
+
+Duplicate Product
+
+Archive Product
+
+Restore Product
+
+Search Products
+
+Sort Products
+
+Filter Products
+
+Bulk Delete
+
+Bulk Update
+
+========================================
+PRODUCT DETAILS
+========================================
+
+Each product should support
+
+Product Name
+
+Short Description
+
+Long Description
+
+Price
+
+Sale Price
+
+SKU
+
+Quantity
+
+Category
+
+Subcategory
+
+Brand
+
+Tags
+
+Multiple Images
+
+Thumbnail
+
+Specifications
+
+Features
+
+Stock Status
+
+Weight
+
+Dimensions
+
+Featured Product Toggle
+
+Trending Toggle
+
+Best Seller Toggle
+
+New Arrival Toggle
+
+Publish / Draft Status
+
+========================================
+IMAGE MANAGEMENT
+========================================
+
+Allow drag-and-drop image upload.
+
+Multiple images.
+
+Reorder images.
+
+Delete images.
+
+Preview before publishing.
+
+========================================
+CATEGORY MANAGEMENT
+========================================
+
+Admin can
+
+Create Category
+
+Edit Category
+
+Delete Category
+
+Create Subcategory
+
+Assign Products
+
+========================================
+ORDER MANAGEMENT
+========================================
+
+View Orders
+
+Pending
+
+Processing
+
+Shipped
+
+Delivered
+
+Cancelled
+
+Search Orders
+
+Print Invoice
+
+Update Order Status
+
+========================================
+CUSTOMER MANAGEMENT
+========================================
+
+View Customers
+
+Search Customers
+
+Order History
+
+Account Status
+
+========================================
+SECURITY
+========================================
+
+Protect every admin route.
+
+Middleware should verify role.
+
+Customers should never access admin pages.
+
+Unauthorized users should receive Access Denied.
+
+Use JWT or secure session authentication.
+
+Passwords must be hashed.
+
+========================================
+DATABASE
+========================================
+
+Create separate tables for
+
+Users
+
+Roles
+
+Products
+
+Categories
+
+Orders
+
+Customers
+
+Images
+
+========================================
+UI DESIGN
+========================================
+
+The Admin Panel should look premium.
+
+Modern dark dashboard.
+
+Responsive.
+
+Professional.
+
+Sidebar Navigation.
+
+Top Navbar.
+
+Search Bar.
+
+Notification Icon.
+
+Profile Menu.
+
+Breadcrumbs.
+
+Cards with animations.
+
+Loading skeletons.
+
+Toast notifications.
+
+Confirmation dialogs before deleting.
+
+========================================
+FUTURE READY
+========================================
+
+Design the architecture so future modules can be added easily.
+
+Examples:
+
+Coupons
+
+Discount Engine
+
+Inventory
+
+Blogs
+
+Course Management
+
+Event Registration
+
+Workshop Booking
+
+STEM Kits
+
+School Management
+
+Payment Reports
+
+========================================
+TECHNICAL REQUIREMENTS
+========================================
+
+Use reusable components.
+
+Clean architecture.
+
+Modular folder structure.
+
+API-based design.
+
+Server-side validation.
+
+Proper error handling.
+
+Loading states.
+
+Optimistic UI updates.
+
+Maintainable code.
+
+Do NOT hardcode anything.
+
+Everything should be database-driven.
+
+Build this like an enterprise-grade SaaS admin dashboard that could scale to thousands of products.
