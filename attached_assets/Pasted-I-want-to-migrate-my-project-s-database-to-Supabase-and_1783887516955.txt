@@ -1,0 +1,269 @@
+I want to migrate my project's database to Supabase and make Supabase the single source of truth for all persistent data.
+
+IMPORTANT
+
+Do NOT hardcode any credentials.
+
+Read all secrets from environment variables.
+
+Environment variables that already exist or will be added:
+
+NEXT_PUBLIC_SUPABASE_URL
+
+NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+SUPABASE_SERVICE_ROLE_KEY
+
+DATABASE_URL
+
+================================================
+
+SETUP
+
+================================================
+
+1. Install all required Supabase packages.
+
+2. Configure the project to use Supabase.
+
+3. Create reusable Supabase client files.
+
+One client for browser usage.
+
+One secure server client.
+
+One admin client using the Service Role Key.
+
+4. Never expose the Service Role Key to the browser.
+
+================================================
+
+DATABASE
+
+================================================
+
+Supabase should become the primary database.
+
+Create proper database models/tables for:
+
+Users
+
+Roles
+
+Products
+
+Product Images
+
+Categories
+
+Subcategories
+
+Orders
+
+Order Items
+
+Customers
+
+Addresses
+
+Wishlist
+
+Cart
+
+Reviews
+
+Coupons
+
+Homepage Banners
+
+Blogs
+
+Events
+
+Courses
+
+Workshops
+
+Contact Messages
+
+Newsletter Subscribers
+
+Testimonials
+
+Gallery
+
+Settings
+
+Admin Activity Logs
+
+================================================
+
+AUTHENTICATION
+
+================================================
+
+Use Supabase Authentication.
+
+Customers can Sign Up.
+
+Customers can Login.
+
+Admin accounts must NOT be publicly creatable.
+
+Role Based Authentication:
+
+Customer
+
+Admin
+
+Super Admin
+
+Only Super Admin can create Admin users.
+
+Protect every admin route.
+
+================================================
+
+SHOP
+
+================================================
+
+The shopping page must read products directly from Supabase.
+
+Adding
+
+Editing
+
+Deleting
+
+Publishing
+
+Hiding products from the Admin Panel should instantly update the website.
+
+No product data should remain hardcoded.
+
+Everything must be database-driven.
+
+================================================
+
+FILE STORAGE
+
+================================================
+
+Use Supabase Storage.
+
+Create buckets for:
+
+Product Images
+
+Course Images
+
+Workshop Images
+
+Gallery Images
+
+Blog Images
+
+Homepage Banners
+
+User Avatars
+
+Implement secure uploads.
+
+Optimize image loading.
+
+Delete unused images.
+
+================================================
+
+REAL TIME
+
+================================================
+
+Use Supabase Realtime where appropriate.
+
+When an admin edits a product, updates should automatically appear without requiring application changes.
+
+================================================
+
+SECURITY
+
+================================================
+
+Enable Row Level Security (RLS).
+
+Create proper RLS policies.
+
+Customers should only access their own data.
+
+Admins should manage all data.
+
+Never expose sensitive credentials.
+
+Validate all server-side requests.
+
+================================================
+
+ARCHITECTURE
+
+================================================
+
+Keep the project modular.
+
+Create folders for:
+
+lib/supabase
+
+services
+
+repositories
+
+hooks
+
+types
+
+database
+
+Use reusable functions for all CRUD operations.
+
+================================================
+
+ERROR HANDLING
+
+================================================
+
+Implement proper loading states.
+
+Graceful error handling.
+
+Retry logic where appropriate.
+
+User-friendly toast notifications.
+
+================================================
+
+FINAL TASK
+
+================================================
+
+After integration, verify:
+
+✓ Supabase connection is working.
+
+✓ Authentication works.
+
+✓ Storage works.
+
+✓ Database queries work.
+
+✓ Admin Panel performs Create, Read, Update, Delete operations.
+
+✓ Shopping page loads products from Supabase.
+
+✓ No dummy or mock data remains.
+
+If any migrations are required, generate them automatically.
+
+Do not ask me to manually modify code unless absolutely necessary.
+
+Use best practices throughout the implementation.
