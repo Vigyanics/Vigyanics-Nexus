@@ -3,9 +3,13 @@ import FeaturedCategories from "@/components/store/FeaturedCategories";
 import ProductGrid from "@/components/store/ProductGrid";
 import SchoolSolutions from "@/components/store/SchoolSolutions";
 import CartDrawer from "@/components/store/CartDrawer";
-import { featuredProducts, bestSellers, newArrivals } from "@/data/products";
+import { useProducts } from "@/hooks/useProducts";
 
 export default function Store() {
+  const { products: featuredProducts, loading: loadingFeatured } = useProducts({ featured: true });
+  const { products: bestSellers, loading: loadingBest } = useProducts({ bestSeller: true });
+  const { products: newArrivals, loading: loadingNew } = useProducts({ newArrival: true });
+
   return (
     <div className="min-h-screen" style={{ background: "#ffffff" }}>
       <CartDrawer />
@@ -17,6 +21,7 @@ export default function Store() {
         title="Featured Products"
         subtitle="Handpicked by our STEM educators for maximum learning impact"
         products={featuredProducts}
+        loading={loadingFeatured}
         badge="Featured"
         badgeColor="#00D4FF"
         bgClass="bg-white"
@@ -28,6 +33,7 @@ export default function Store() {
         title="Best Sellers"
         subtitle="Loved by students, trusted by schools across India"
         products={bestSellers}
+        loading={loadingBest}
         badge="Best Sellers"
         badgeColor="#00C896"
         bgClass="bg-gray-50/60"
@@ -39,6 +45,7 @@ export default function Store() {
         title="New Arrivals"
         subtitle="The latest kits and innovations just added to our store"
         products={newArrivals}
+        loading={loadingNew}
         badge="New"
         badgeColor="#8B5CF6"
         bgClass="bg-white"
@@ -53,7 +60,7 @@ export default function Store() {
             {[
               { stat: "5,000+", label: "Students using our kits" },
               { stat: "80+", label: "Partner schools" },
-              { stat: "4.8★", label: "Average product rating" },
+              { stat: "4.8", label: "Average product rating" },
               { stat: "100%", label: "Free returns within 7 days" },
             ].map((item) => (
               <div key={item.label}>

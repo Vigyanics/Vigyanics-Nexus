@@ -1,88 +1,49 @@
 import { Router } from "express";
-import { db, usersTable } from "@workspace/db";
-import { eq, ilike, or } from "drizzle-orm";
+import { supabaseAdmin } from "../../lib/supabase";
 import { requireAdmin } from "../../middlewares/auth";
 import type { IRouter } from "express";
 
 const router: IRouter = Router();
 
 router.get("/admin/customers", requireAdmin, async (req, res): Promise<void> => {
-  const {
-    search,
-    page = "1",
-    limit = "20",
-  } = req.query as Record<string, string>;
-
+  const { search, page = "1", limit = "20" } = req.query as Record<string, string>;
   const pageNum = Math.max(1, parseInt(page, 10) || 1);
   const limitNum = Math.min(100, parseInt(limit, 10) || 20);
   const offset = (pageNum - 1) * limitNum;
 
-  const allCustomers = await db
-    .select({
-      id: usersTable.id,
-      email: usersTable.email,
-      role: usersTable.role,
-      firstName: usersTable.firstName,
-      lastName: usersTable.lastName,
-      phone: usersTable.phone,
-      isActive: usersTable.isActive,
-      createdAt: usersTable.createdAt,
-    })
-    .from(usersTable)
-    .where(eq(usersTable.role, "customer"));
+  let query = supabaseAdmin
+    .from("customers")
+    .select("*", { count: "exact" })
+    .eq("role", "customer")
+    .order("created_at", { ascending: false })
+    .range(offset, offset + limitNum - 1);
 
-  let filtered = allCustomers;
-  if (search) {
-    const s = search.toLowerCase();
-    filtered = filtered.filter(
-      (u) =>
-        u.email.toLowerCase().includes(s) ||
-        u.firstName?.toLowerCase().includes(s) ||
-        u.lastName?.toLowerCase().includes(s)
-    );
-  }
+  if (search) query = query.or(`email.ilike.%${search}%,first_name.ilike.%${search}%,last_name.ilike.%${search}%`);
 
-  const total = filtered.length;
-  const data = filtered.slice(offset, offset + limitNum);
+  const { data, error, count } = await query;
+  if (error) { res.status(500).json({ error: error.message }); return; }
 
-  res.json({ data, total, page: pageNum, limit: limitNum });
+  res.json({ data: data ?? [], total: count ?? 0, page: pageNum, limit: limitNum });
 });
 
 router.patch("/admin/customers/:id/status", requireAdmin, async (req, res): Promise<void> => {
-  const rawId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-  const id = parseInt(rawId, 10);
-  if (isNaN(id)) {
-    res.status(400).json({ error: "Invalid customer id" });
-    return;
-  }
-
+  const { id } = req.params;
   const { isActive } = req.body as { isActive?: boolean };
+
   if (typeof isActive !== "boolean") {
     res.status(400).json({ error: "isActive must be a boolean" });
     return;
   }
 
-  const [user] = await db
-    .update(usersTable)
-    .set({ isActive, updatedAt: new Date() })
-    .where(eq(usersTable.id, id))
-    .returning({
-      id: usersTable.id,
-      email: usersTable.email,
-      role: usersTable.role,
-      firstName: usersTable.firstName,
-      lastName: usersTable.lastName,
-      phone: usersTable.phone,
-      isActive: usersTable.isActive,
-      createdAt: usersTable.createdAt,
-    });
+  const { data, error } = await supabaseAdmin
+    .from("customers")
+    .update({ is_active: isActive, updated_at: new Date().toISOString() })
+    .eq("id", id)
+    .select()
+    .single();
 
-  if (!user) {
-    res.status(404).json({ error: "Customer not found" });
-    return;
-  }
-
-  res.json(user);
+  if (error || !data) { res.status(404).json({ error: "Customer not found" }); return; }
+  res.json(data);
 });
 
 export default router;

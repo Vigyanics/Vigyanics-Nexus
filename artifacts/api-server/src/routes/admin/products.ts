@@ -1,151 +1,69 @@
 import { Router } from "express";
-import { db, productsTable, productImagesTable, categoriesTable } from "@workspace/db";
-import { eq, ilike, and, inArray, desc } from "drizzle-orm";
+import { supabaseAdmin } from "../../lib/supabase";
 import { requireAdmin } from "../../middlewares/auth";
 import type { IRouter } from "express";
 
 const router: IRouter = Router();
 
-async function fetchProductWithImages(id: number) {
-  const [product] = await db.select().from(productsTable).where(eq(productsTable.id, id));
-  if (!product) return null;
-
-  const images = await db
-    .select()
-    .from(productImagesTable)
-    .where(eq(productImagesTable.productId, id))
-    .orderBy(productImagesTable.sortOrder);
-
-  let categoryName: string | null = null;
-  if (product.categoryId) {
-    const [cat] = await db
-      .select({ name: categoriesTable.name })
-      .from(categoriesTable)
-      .where(eq(categoriesTable.id, product.categoryId));
-    categoryName = cat?.name ?? null;
-  }
-
-  return { ...product, images, categoryName };
-}
-
 router.get("/admin/products", requireAdmin, async (req, res): Promise<void> => {
-  const {
-    search,
-    status,
-    categoryId,
-    page = "1",
-    limit = "20",
-  } = req.query as Record<string, string>;
-
+  const { search, status, categoryId, page = "1", limit = "20" } = req.query as Record<string, string>;
   const pageNum = Math.max(1, parseInt(page, 10) || 1);
   const limitNum = Math.min(100, parseInt(limit, 10) || 20);
   const offset = (pageNum - 1) * limitNum;
 
-  const allProducts = await db
-    .select()
-    .from(productsTable)
-    .orderBy(desc(productsTable.createdAt));
+  let query = supabaseAdmin
+    .from("products")
+    .select("*, categories(name)", { count: "exact" })
+    .order("created_at", { ascending: false })
+    .range(offset, offset + limitNum - 1);
 
-  let filtered = allProducts;
-  if (search) {
-    const s = search.toLowerCase();
-    filtered = filtered.filter(
-      (p) => p.name.toLowerCase().includes(s) || p.sku?.toLowerCase().includes(s)
-    );
-  }
-  if (status) filtered = filtered.filter((p) => p.status === status);
-  if (categoryId) {
-    const cid = parseInt(categoryId, 10);
-    if (!isNaN(cid)) filtered = filtered.filter((p) => p.categoryId === cid);
-  }
+  if (status) query = query.eq("status", status);
+  if (categoryId) query = query.eq("category_id", parseInt(categoryId, 10));
+  if (search) query = query.or(`name.ilike.%${search}%,sku.ilike.%${search}%`);
 
-  const total = filtered.length;
-  const page_data = filtered.slice(offset, offset + limitNum);
+  const { data, error, count } = await query;
+  if (error) { res.status(500).json({ error: error.message }); return; }
 
-  const productIds = page_data.map((p) => p.id);
-  const images =
-    productIds.length > 0
-      ? await db
-          .select()
-          .from(productImagesTable)
-          .where(inArray(productImagesTable.productId, productIds))
-      : [];
-
-  const categories = await db.select({ id: categoriesTable.id, name: categoriesTable.name }).from(categoriesTable);
-  const categoryMap = new Map(categories.map((c) => [c.id, c.name]));
-
-  const imageMap = new Map<number, typeof images>();
-  for (const img of images) {
-    if (!imageMap.has(img.productId)) imageMap.set(img.productId, []);
-    imageMap.get(img.productId)!.push(img);
-  }
-
-  const data = page_data.map((p) => ({
-    ...p,
-    images: imageMap.get(p.id) ?? [],
-    categoryName: p.categoryId ? (categoryMap.get(p.categoryId) ?? null) : null,
-  }));
-
-  res.json({ data, total, page: pageNum, limit: limitNum });
+  res.json({ data: data ?? [], total: count ?? 0, page: pageNum, limit: limitNum });
 });
 
 router.post("/admin/products", requireAdmin, async (req, res): Promise<void> => {
-  const {
-    name,
-    shortDescription,
-    longDescription,
-    price,
-    salePrice,
-    sku,
-    quantity,
-    categoryId,
-    brand,
-    tags,
-    thumbnail,
-    status,
-    stockStatus,
-    isFeatured,
-    isTrending,
-    isBestSeller,
-    isNewArrival,
-    weight,
-    dimensions,
-    features,
-  } = req.body as Record<string, unknown>;
-
-  if (!name || !price) {
+  const body = req.body as Record<string, unknown>;
+  if (!body.name || !body.price) {
     res.status(400).json({ error: "name and price are required" });
     return;
   }
 
-  const [product] = await db
-    .insert(productsTable)
-    .values({
-      name: name as string,
-      shortDescription: (shortDescription as string) ?? null,
-      longDescription: (longDescription as string) ?? null,
-      price: price as string,
-      salePrice: (salePrice as string) ?? null,
-      sku: (sku as string) ?? null,
-      quantity: (quantity as number) ?? 0,
-      categoryId: (categoryId as number) ?? null,
-      brand: (brand as string) ?? null,
-      tags: (tags as string[]) ?? null,
-      thumbnail: (thumbnail as string) ?? null,
-      status: (status as string) ?? "draft",
-      stockStatus: (stockStatus as string) ?? "in_stock",
-      isFeatured: (isFeatured as boolean) ?? false,
-      isTrending: (isTrending as boolean) ?? false,
-      isBestSeller: (isBestSeller as boolean) ?? false,
-      isNewArrival: (isNewArrival as boolean) ?? false,
-      weight: (weight as string) ?? null,
-      dimensions: (dimensions as string) ?? null,
-      features: (features as string[]) ?? null,
+  const { data, error } = await supabaseAdmin
+    .from("products")
+    .insert({
+      name: body.name,
+      short_description: body.shortDescription ?? null,
+      long_description: body.longDescription ?? null,
+      price: body.price,
+      sale_price: body.salePrice ?? null,
+      sku: body.sku ?? null,
+      quantity: body.quantity ?? 0,
+      category_id: body.categoryId ?? null,
+      brand: body.brand ?? null,
+      tags: body.tags ?? null,
+      thumbnail: body.thumbnail ?? null,
+      status: body.status ?? "draft",
+      stock_status: body.stockStatus ?? "in_stock",
+      is_featured: body.isFeatured ?? false,
+      is_trending: body.isTrending ?? false,
+      is_best_seller: body.isBestSeller ?? false,
+      is_new_arrival: body.isNewArrival ?? false,
+      age_group: body.ageGroup ?? null,
+      color_accent: body.colorAccent ?? null,
+      features: body.features ?? null,
+      specifications: body.specifications ?? null,
     })
-    .returning();
+    .select("*, categories(name)")
+    .single();
 
-  const result = await fetchProductWithImages(product.id);
-  res.status(201).json(result);
+  if (error) { res.status(400).json({ error: error.message }); return; }
+  res.status(201).json(data);
 });
 
 router.delete("/admin/products/bulk", requireAdmin, async (req, res): Promise<void> => {
@@ -154,108 +72,82 @@ router.delete("/admin/products/bulk", requireAdmin, async (req, res): Promise<vo
     res.status(400).json({ error: "ids array required" });
     return;
   }
-
-  const deleted = await db
-    .delete(productsTable)
-    .where(inArray(productsTable.id, ids))
-    .returning({ id: productsTable.id });
-
-  res.json({ deleted: deleted.length });
+  const { error, count } = await supabaseAdmin.from("products").delete({ count: "exact" }).in("id", ids);
+  if (error) { res.status(500).json({ error: error.message }); return; }
+  res.json({ deleted: count ?? 0 });
 });
 
 router.get("/admin/products/:id", requireAdmin, async (req, res): Promise<void> => {
-  const rawId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-  const id = parseInt(rawId, 10);
-  if (isNaN(id)) {
-    res.status(400).json({ error: "Invalid product id" });
-    return;
-  }
+  const id = parseInt(req.params.id, 10);
+  if (isNaN(id)) { res.status(400).json({ error: "Invalid id" }); return; }
 
-  const product = await fetchProductWithImages(id);
-  if (!product) {
-    res.status(404).json({ error: "Product not found" });
-    return;
-  }
-  res.json(product);
+  const { data, error } = await supabaseAdmin
+    .from("products")
+    .select("*, categories(name), product_images(*)")
+    .eq("id", id)
+    .single();
+
+  if (error || !data) { res.status(404).json({ error: "Product not found" }); return; }
+  res.json(data);
 });
 
 router.patch("/admin/products/:id", requireAdmin, async (req, res): Promise<void> => {
-  const rawId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-  const id = parseInt(rawId, 10);
-  if (isNaN(id)) {
-    res.status(400).json({ error: "Invalid product id" });
-    return;
+  const id = parseInt(req.params.id, 10);
+  if (isNaN(id)) { res.status(400).json({ error: "Invalid id" }); return; }
+
+  const body = req.body as Record<string, unknown>;
+  const updates: Record<string, unknown> = { updated_at: new Date().toISOString() };
+  const map: Record<string, string> = {
+    name: "name", shortDescription: "short_description", longDescription: "long_description",
+    price: "price", salePrice: "sale_price", sku: "sku", quantity: "quantity",
+    categoryId: "category_id", brand: "brand", tags: "tags", thumbnail: "thumbnail",
+    status: "status", stockStatus: "stock_status", isFeatured: "is_featured",
+    isTrending: "is_trending", isBestSeller: "is_best_seller", isNewArrival: "is_new_arrival",
+    ageGroup: "age_group", colorAccent: "color_accent", features: "features",
+    specifications: "specifications", weight: "weight", dimensions: "dimensions",
+  };
+  for (const [jsKey, dbKey] of Object.entries(map)) {
+    if (jsKey in body) updates[dbKey] = body[jsKey];
   }
 
-  const updates: Record<string, unknown> = { updatedAt: new Date() };
-  const fields = [
-    "name", "shortDescription", "longDescription", "price", "salePrice",
-    "sku", "quantity", "categoryId", "brand", "tags", "thumbnail", "status",
-    "stockStatus", "isFeatured", "isTrending", "isBestSeller", "isNewArrival",
-    "weight", "dimensions", "features",
-  ];
-  for (const field of fields) {
-    if (field in req.body) updates[field] = (req.body as Record<string, unknown>)[field];
-  }
+  const { data, error } = await supabaseAdmin
+    .from("products")
+    .update(updates)
+    .eq("id", id)
+    .select("*, categories(name)")
+    .single();
 
-  const [updated] = await db
-    .update(productsTable)
-    .set(updates)
-    .where(eq(productsTable.id, id))
-    .returning();
-
-  if (!updated) {
-    res.status(404).json({ error: "Product not found" });
-    return;
-  }
-
-  const result = await fetchProductWithImages(id);
-  res.json(result);
+  if (error || !data) { res.status(404).json({ error: "Product not found" }); return; }
+  res.json(data);
 });
 
 router.delete("/admin/products/:id", requireAdmin, async (req, res): Promise<void> => {
-  const rawId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-  const id = parseInt(rawId, 10);
-  if (isNaN(id)) {
-    res.status(400).json({ error: "Invalid product id" });
-    return;
-  }
+  const id = parseInt(req.params.id, 10);
+  if (isNaN(id)) { res.status(400).json({ error: "Invalid id" }); return; }
 
-  const [deleted] = await db.delete(productsTable).where(eq(productsTable.id, id)).returning();
-  if (!deleted) {
-    res.status(404).json({ error: "Product not found" });
-    return;
-  }
+  const { error } = await supabaseAdmin.from("products").delete().eq("id", id);
+  if (error) { res.status(404).json({ error: "Product not found" }); return; }
   res.sendStatus(204);
 });
 
 router.post("/admin/products/:id/duplicate", requireAdmin, async (req, res): Promise<void> => {
-  const rawId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-  const id = parseInt(rawId, 10);
-  if (isNaN(id)) {
-    res.status(400).json({ error: "Invalid product id" });
-    return;
-  }
+  const id = parseInt(req.params.id, 10);
+  if (isNaN(id)) { res.status(400).json({ error: "Invalid id" }); return; }
 
-  const [original] = await db.select().from(productsTable).where(eq(productsTable.id, id));
-  if (!original) {
-    res.status(404).json({ error: "Product not found" });
-    return;
-  }
+  const { data: original, error: fetchErr } = await supabaseAdmin
+    .from("products").select("*").eq("id", id).single();
 
-  const { id: _id, createdAt: _ca, updatedAt: _ua, sku, ...rest } = original;
-  const [duplicate] = await db
-    .insert(productsTable)
-    .values({
-      ...rest,
-      name: `${original.name} (Copy)`,
-      sku: sku ? `${sku}-copy` : null,
-      status: "draft",
-    })
-    .returning();
+  if (fetchErr || !original) { res.status(404).json({ error: "Product not found" }); return; }
 
-  const result = await fetchProductWithImages(duplicate.id);
-  res.status(201).json(result);
+  const { id: _id, created_at: _ca, updated_at: _ua, ...rest } = original;
+  const { data, error } = await supabaseAdmin
+    .from("products")
+    .insert({ ...rest, name: `${original.name} (Copy)`, sku: original.sku ? `${original.sku}-copy` : null, status: "draft" })
+    .select("*, categories(name)")
+    .single();
+
+  if (error) { res.status(400).json({ error: error.message }); return; }
+  res.status(201).json(data);
 });
 
 export default router;

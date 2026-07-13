@@ -1,8 +1,8 @@
 import type { Request, Response, NextFunction } from "express";
-import jwt from "jsonwebtoken";
+import { supabaseAdmin } from "../lib/supabase";
 
 export interface AuthPayload {
-  userId: number;
+  userId: string;
   email: string;
   role: string;
 }
@@ -15,29 +15,35 @@ declare global {
   }
 }
 
-const JWT_SECRET = process.env.SESSION_SECRET ?? "fallback-dev-secret";
-
-export function signToken(payload: AuthPayload): string {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: "7d" });
-}
-
-export function verifyToken(token: string): AuthPayload {
-  return jwt.verify(token, JWT_SECRET) as AuthPayload;
-}
-
-export function requireAuth(req: Request, res: Response, next: NextFunction): void {
+export async function requireAuth(req: Request, res: Response, next: NextFunction): Promise<void> {
   const header = req.headers.authorization;
   if (!header?.startsWith("Bearer ")) {
     res.status(401).json({ error: "Missing or invalid authorization header" });
     return;
   }
   const token = header.slice(7);
-  try {
-    req.user = verifyToken(token);
-    next();
-  } catch {
+
+  // Verify token with Supabase
+  const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
+  if (error || !user) {
     res.status(401).json({ error: "Invalid or expired token" });
+    return;
   }
+
+  // Get role from customers table
+  const { data: profile } = await supabaseAdmin
+    .from("customers")
+    .select("role, is_active")
+    .eq("id", user.id)
+    .single();
+
+  if (!profile?.is_active) {
+    res.status(403).json({ error: "Account is deactivated" });
+    return;
+  }
+
+  req.user = { userId: user.id, email: user.email ?? "", role: profile?.role ?? "customer" };
+  next();
 }
 
 export function requireAdmin(req: Request, res: Response, next: NextFunction): void {

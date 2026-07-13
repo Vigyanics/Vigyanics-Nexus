@@ -1,97 +1,65 @@
 import { Router } from "express";
-import { db, ordersTable, orderItemsTable } from "@workspace/db";
-import { eq, desc } from "drizzle-orm";
+import { supabaseAdmin } from "../../lib/supabase";
 import { requireAdmin } from "../../middlewares/auth";
 import type { IRouter } from "express";
 
 const router: IRouter = Router();
 
 router.get("/admin/orders", requireAdmin, async (req, res): Promise<void> => {
-  const {
-    status,
-    search,
-    page = "1",
-    limit = "20",
-  } = req.query as Record<string, string>;
-
+  const { status, search, page = "1", limit = "20" } = req.query as Record<string, string>;
   const pageNum = Math.max(1, parseInt(page, 10) || 1);
   const limitNum = Math.min(100, parseInt(limit, 10) || 20);
   const offset = (pageNum - 1) * limitNum;
 
-  const allOrders = await db
-    .select()
-    .from(ordersTable)
-    .orderBy(desc(ordersTable.createdAt));
+  let query = supabaseAdmin
+    .from("orders")
+    .select("*", { count: "exact" })
+    .order("created_at", { ascending: false })
+    .range(offset, offset + limitNum - 1);
 
-  let filtered = allOrders;
-  if (status) filtered = filtered.filter((o) => o.status === status);
-  if (search) {
-    const s = search.toLowerCase();
-    filtered = filtered.filter(
-      (o) =>
-        o.orderNumber.toLowerCase().includes(s) ||
-        o.customerName?.toLowerCase().includes(s) ||
-        o.customerEmail?.toLowerCase().includes(s)
-    );
-  }
+  if (status) query = query.eq("status", status);
+  if (search) query = query.or(`order_number.ilike.%${search}%,customer_name.ilike.%${search}%,customer_email.ilike.%${search}%`);
 
-  const total = filtered.length;
-  const data = filtered.slice(offset, offset + limitNum);
+  const { data, error, count } = await query;
+  if (error) { res.status(500).json({ error: error.message }); return; }
 
-  res.json({ data, total, page: pageNum, limit: limitNum });
+  res.json({ data: data ?? [], total: count ?? 0, page: pageNum, limit: limitNum });
 });
 
 router.get("/admin/orders/:id", requireAdmin, async (req, res): Promise<void> => {
-  const rawId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-  const id = parseInt(rawId, 10);
-  if (isNaN(id)) {
-    res.status(400).json({ error: "Invalid order id" });
-    return;
-  }
+  const id = parseInt(req.params.id, 10);
+  if (isNaN(id)) { res.status(400).json({ error: "Invalid id" }); return; }
 
-  const [order] = await db.select().from(ordersTable).where(eq(ordersTable.id, id));
-  if (!order) {
-    res.status(404).json({ error: "Order not found" });
-    return;
-  }
+  const { data, error } = await supabaseAdmin
+    .from("orders")
+    .select("*, order_items(*)")
+    .eq("id", id)
+    .single();
 
-  const items = await db.select().from(orderItemsTable).where(eq(orderItemsTable.orderId, id));
-
-  res.json({ ...order, items });
+  if (error || !data) { res.status(404).json({ error: "Order not found" }); return; }
+  res.json(data);
 });
 
 router.patch("/admin/orders/:id/status", requireAdmin, async (req, res): Promise<void> => {
-  const rawId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-  const id = parseInt(rawId, 10);
-  if (isNaN(id)) {
-    res.status(400).json({ error: "Invalid order id" });
-    return;
-  }
+  const id = parseInt(req.params.id, 10);
+  if (isNaN(id)) { res.status(400).json({ error: "Invalid id" }); return; }
 
   const { status } = req.body as { status?: string };
-  if (!status) {
-    res.status(400).json({ error: "status is required" });
+  const valid = ["pending", "processing", "shipped", "delivered", "cancelled"];
+  if (!status || !valid.includes(status)) {
+    res.status(400).json({ error: `status must be one of: ${valid.join(", ")}` });
     return;
   }
 
-  const validStatuses = ["pending", "processing", "shipped", "delivered", "cancelled"];
-  if (!validStatuses.includes(status)) {
-    res.status(400).json({ error: `Invalid status. Must be one of: ${validStatuses.join(", ")}` });
-    return;
-  }
+  const { data, error } = await supabaseAdmin
+    .from("orders")
+    .update({ status, updated_at: new Date().toISOString() })
+    .eq("id", id)
+    .select()
+    .single();
 
-  const [order] = await db
-    .update(ordersTable)
-    .set({ status, updatedAt: new Date() })
-    .where(eq(ordersTable.id, id))
-    .returning();
-
-  if (!order) {
-    res.status(404).json({ error: "Order not found" });
-    return;
-  }
-
-  res.json(order);
+  if (error || !data) { res.status(404).json({ error: "Order not found" }); return; }
+  res.json(data);
 });
 
 export default router;

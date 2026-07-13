@@ -26,11 +26,39 @@ if (!basePath) {
   );
 }
 
+// Auto-detect swapped Supabase env vars by decoding JWT role claims
+function detectSupabaseVars() {
+  const allVals = [
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_ANON_KEY,
+    process.env.SUPABASE_SERVICE_ROLE_KEY,
+  ].filter(Boolean) as string[];
+
+  let url = "";
+  let anonKey = "";
+
+  for (const val of allVals) {
+    if (val.startsWith("https://") && val.includes(".supabase.co")) {
+      url = val;
+      continue;
+    }
+    if (!val.startsWith("eyJ")) continue;
+    try {
+      const payload = JSON.parse(Buffer.from(val.split(".")[1], "base64").toString()) as { role?: string };
+      if (payload.role === "anon") anonKey = val;
+    } catch {}
+  }
+
+  return { url, anonKey };
+}
+
+const { url: sbUrl, anonKey: sbAnonKey } = detectSupabaseVars();
+
 export default defineConfig({
   base: basePath,
   define: {
-    "import.meta.env.VITE_SUPABASE_URL": JSON.stringify(process.env.SUPABASE_URL ?? ""),
-    "import.meta.env.VITE_SUPABASE_ANON_KEY": JSON.stringify(process.env.SUPABASE_ANON_KEY ?? ""),
+    "import.meta.env.VITE_SUPABASE_URL": JSON.stringify(sbUrl),
+    "import.meta.env.VITE_SUPABASE_ANON_KEY": JSON.stringify(sbAnonKey),
   },
   plugins: [
     react(),

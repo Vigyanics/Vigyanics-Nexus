@@ -1,14 +1,24 @@
 import { createContext, useContext, useState, useCallback } from "react";
-import type { Product } from "@/data/products";
+
+export interface CartProduct {
+  id: string;
+  name: string;
+  price: number;
+  originalPrice?: number;
+  colorAccent: string;
+  thumbnail?: string;
+  category: string;
+  categorySlug: string;
+}
 
 export interface CartItem {
-  product: Product;
+  product: CartProduct;
   quantity: number;
 }
 
 interface CartContextType {
   items: CartItem[];
-  addToCart: (product: Product, qty?: number) => void;
+  addToCart: (product: CartProduct, qty?: number) => void;
   removeFromCart: (productId: string) => void;
   updateQuantity: (productId: string, qty: number) => void;
   clearCart: () => void;
@@ -29,7 +39,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
   const [wishlist, setWishlist] = useState<string[]>([]);
 
-  const addToCart = useCallback((product: Product, qty = 1) => {
+  const addToCart = useCallback((product: CartProduct, qty = 1) => {
     setItems(prev => {
       const existing = prev.find(i => i.product.id === product.id);
       if (existing) {

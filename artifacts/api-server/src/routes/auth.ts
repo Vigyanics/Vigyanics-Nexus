@@ -1,110 +1,107 @@
 import { Router } from "express";
-import bcrypt from "bcryptjs";
-import { eq } from "drizzle-orm";
-import { db, usersTable } from "@workspace/db";
-import { signToken, requireAuth } from "../middlewares/auth";
+import { supabaseAdmin, supabase } from "../lib/supabase";
+import { requireAuth } from "../middlewares/auth";
 import type { IRouter } from "express";
 
 const router: IRouter = Router();
 
+// Customer registration
 router.post("/auth/register", async (req, res): Promise<void> => {
   const { email, password, firstName, lastName, phone } = req.body as {
-    email?: string;
-    password?: string;
-    firstName?: string;
-    lastName?: string;
-    phone?: string;
+    email?: string; password?: string; firstName?: string; lastName?: string; phone?: string;
   };
 
   if (!email || !password || !firstName || !lastName) {
     res.status(400).json({ error: "email, password, firstName and lastName are required" });
     return;
   }
-
   if (password.length < 8) {
     res.status(400).json({ error: "Password must be at least 8 characters" });
     return;
   }
 
-  const [existing] = await db.select({ id: usersTable.id }).from(usersTable).where(eq(usersTable.email, email));
-  if (existing) {
-    res.status(409).json({ error: "Email already registered" });
+  const { data, error } = await supabaseAdmin.auth.admin.createUser({
+    email,
+    password,
+    user_metadata: { first_name: firstName, last_name: lastName, role: "customer" },
+    email_confirm: true,
+  });
+
+  if (error) {
+    res.status(400).json({ error: error.message });
     return;
   }
 
-  const passwordHash = await bcrypt.hash(password, 12);
-  const [user] = await db
-    .insert(usersTable)
-    .values({ email, passwordHash, firstName, lastName, phone: phone ?? null, role: "customer" })
-    .returning();
+  // Update phone if provided
+  if (phone && data.user) {
+    await supabaseAdmin.from("customers").update({ phone }).eq("id", data.user.id);
+  }
 
-  const token = signToken({ userId: user.id, email: user.email, role: user.role });
+  // Sign in to get token
+  const { data: signIn, error: signInErr } = await supabase.auth.signInWithPassword({ email, password });
+  if (signInErr || !signIn.session) {
+    res.status(201).json({ message: "Account created. Please sign in." });
+    return;
+  }
+
+  const { data: profile } = await supabaseAdmin.from("customers").select("*").eq("id", data.user.id).single();
+
   res.status(201).json({
-    token,
+    token: signIn.session.access_token,
     user: {
-      id: user.id,
-      email: user.email,
-      role: user.role,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      phone: user.phone,
-      isActive: user.isActive,
-      createdAt: user.createdAt,
+      id: profile?.id, email: profile?.email, role: profile?.role,
+      firstName: profile?.first_name, lastName: profile?.last_name,
+      phone: profile?.phone, isActive: profile?.is_active,
     },
   });
 });
 
+// Customer login
 router.post("/auth/login", async (req, res): Promise<void> => {
   const { email, password } = req.body as { email?: string; password?: string };
-
   if (!email || !password) {
     res.status(400).json({ error: "email and password are required" });
     return;
   }
 
-  const [user] = await db.select().from(usersTable).where(eq(usersTable.email, email));
-  if (!user || !user.isActive) {
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  if (error || !data.session) {
     res.status(401).json({ error: "Invalid credentials" });
     return;
   }
 
-  const valid = await bcrypt.compare(password, user.passwordHash);
-  if (!valid) {
-    res.status(401).json({ error: "Invalid credentials" });
+  const { data: profile } = await supabaseAdmin
+    .from("customers").select("*").eq("id", data.user.id).single();
+
+  if (!profile?.is_active) {
+    res.status(403).json({ error: "Account is deactivated" });
     return;
   }
 
-  const token = signToken({ userId: user.id, email: user.email, role: user.role });
   res.json({
-    token,
+    token: data.session.access_token,
     user: {
-      id: user.id,
-      email: user.email,
-      role: user.role,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      phone: user.phone,
-      isActive: user.isActive,
-      createdAt: user.createdAt,
+      id: profile.id, email: profile.email, role: profile.role,
+      firstName: profile.first_name, lastName: profile.last_name,
+      phone: profile.phone, isActive: profile.is_active,
     },
   });
 });
 
+// Get current user
 router.get("/auth/me", requireAuth, async (req, res): Promise<void> => {
-  const [user] = await db.select().from(usersTable).where(eq(usersTable.id, req.user!.userId));
-  if (!user) {
+  const { data: profile } = await supabaseAdmin
+    .from("customers").select("*").eq("id", req.user!.userId).single();
+
+  if (!profile) {
     res.status(401).json({ error: "User not found" });
     return;
   }
+
   res.json({
-    id: user.id,
-    email: user.email,
-    role: user.role,
-    firstName: user.firstName,
-    lastName: user.lastName,
-    phone: user.phone,
-    isActive: user.isActive,
-    createdAt: user.createdAt,
+    id: profile.id, email: profile.email, role: profile.role,
+    firstName: profile.first_name, lastName: profile.last_name,
+    phone: profile.phone, isActive: profile.is_active, createdAt: profile.created_at,
   });
 });
 

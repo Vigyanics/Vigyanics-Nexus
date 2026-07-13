@@ -2,31 +2,55 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Star, Heart, ShoppingCart, Eye, Zap } from "lucide-react";
 import { useCart } from "@/context/CartContext";
-import { formatPrice, getDiscount, type Product } from "@/data/products";
 import { useLocation } from "wouter";
+import type { StoreProduct } from "@/hooks/useProducts";
 
 interface ProductCardProps {
-  product: Product;
+  product: StoreProduct;
   index?: number;
+}
+
+function formatPrice(price: number | string): string {
+  return new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(Number(price));
+}
+
+function getDiscount(price: number | string, salePrice: number | string | null): number | null {
+  if (!salePrice) return null;
+  const orig = Number(price);
+  const sale = Number(salePrice);
+  if (sale >= orig) return null;
+  return Math.round(((orig - sale) / orig) * 100);
 }
 
 export default function ProductCard({ product, index = 0 }: ProductCardProps) {
   const { addToCart, toggleWishlist, isWishlisted } = useCart();
   const [addedAnim, setAddedAnim] = useState(false);
   const [, navigate] = useLocation();
-  const discount = getDiscount(product.price, product.originalPrice);
-  const wishlisted = isWishlisted(product.id);
+
+  const colorAccent = product.color_accent ?? product.categories?.color ?? "#00D4FF";
+  const displayPrice = product.sale_price ?? product.price;
+  const discount = getDiscount(product.price, product.sale_price);
+  const wishlisted = isWishlisted(String(product.id));
 
   function handleAddToCart(e: React.MouseEvent) {
     e.stopPropagation();
-    addToCart(product);
+    addToCart({
+      id: String(product.id),
+      name: product.name,
+      price: Number(displayPrice),
+      originalPrice: product.sale_price ? Number(product.price) : undefined,
+      colorAccent,
+      thumbnail: product.thumbnail ?? undefined,
+      category: product.categories?.name ?? "",
+      categorySlug: product.categories?.slug ?? "",
+    });
     setAddedAnim(true);
     setTimeout(() => setAddedAnim(false), 1200);
   }
 
   function handleWishlist(e: React.MouseEvent) {
     e.stopPropagation();
-    toggleWishlist(product.id);
+    toggleWishlist(String(product.id));
   }
 
   function handleCardClick() {
@@ -45,13 +69,13 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
     >
       {/* Top badges */}
       <div className="absolute top-3 left-3 z-10 flex flex-col gap-1.5">
-        {product.isNew && (
+        {product.is_new_arrival && (
           <span className="px-2.5 py-1 rounded-full text-xs font-bold text-white" style={{ background: "#8B5CF6" }}>NEW</span>
         )}
-        {product.isBestSeller && (
+        {product.is_best_seller && (
           <span className="px-2.5 py-1 rounded-full text-xs font-bold text-vigyanics-blue" style={{ background: "#00C896" }}>BEST SELLER</span>
         )}
-        {discount && (
+        {discount !== null && (
           <span className="px-2.5 py-1 rounded-full text-xs font-bold text-white" style={{ background: "#EF4444" }}>{discount}% OFF</span>
         )}
       </div>
@@ -68,23 +92,26 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
       {/* Product visual */}
       <div
         className="relative h-48 flex items-center justify-center overflow-hidden transition-all duration-500 group-hover:scale-105"
-        style={{ background: `linear-gradient(135deg, ${product.colorAccent}10, ${product.colorAccent}05)` }}
+        style={{ background: `linear-gradient(135deg, ${colorAccent}10, ${colorAccent}05)` }}
       >
         <div
           className="absolute inset-0 opacity-10"
-          style={{ background: `radial-gradient(circle at 50% 50%, ${product.colorAccent}, transparent 70%)` }}
+          style={{ background: `radial-gradient(circle at 50% 50%, ${colorAccent}, transparent 70%)` }}
         />
 
-        {/* SVG icon + text visual */}
-        <div className="relative flex flex-col items-center gap-3 px-6 text-center">
-          <div
-            className="w-20 h-20 rounded-2xl flex items-center justify-center shadow-lg"
-            style={{ background: `${product.colorAccent}20`, border: `2px solid ${product.colorAccent}40` }}
-          >
-            <Zap className="w-8 h-8" style={{ color: product.colorAccent }} />
+        {product.thumbnail ? (
+          <img src={product.thumbnail} alt={product.name} className="relative w-full h-full object-contain p-6" />
+        ) : (
+          <div className="relative flex flex-col items-center gap-3 px-6 text-center">
+            <div
+              className="w-20 h-20 rounded-2xl flex items-center justify-center shadow-lg"
+              style={{ background: `${colorAccent}20`, border: `2px solid ${colorAccent}40` }}
+            >
+              <Zap className="w-8 h-8" style={{ color: colorAccent }} />
+            </div>
+            <span className="text-xs font-semibold text-gray-400 uppercase tracking-widest">{product.categories?.name ?? ""}</span>
           </div>
-          <span className="text-xs font-semibold text-gray-400 uppercase tracking-widest">{product.category}</span>
-        </div>
+        )}
 
         {/* Quick view overlay */}
         <div className="absolute inset-0 bg-vigyanics-blue/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -109,38 +136,43 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
               <Star
                 key={star}
                 className="w-3.5 h-3.5"
-                fill={star <= Math.round(product.rating) ? "#F59E0B" : "transparent"}
-                stroke={star <= Math.round(product.rating) ? "#F59E0B" : "#D1D5DB"}
+                fill={star <= Math.round(Number(product.rating ?? 0)) ? "#F59E0B" : "transparent"}
+                stroke={star <= Math.round(Number(product.rating ?? 0)) ? "#F59E0B" : "#D1D5DB"}
               />
             ))}
           </div>
-          <span className="text-xs text-gray-500 font-medium">{product.rating} ({product.reviews.toLocaleString()})</span>
+          <span className="text-xs text-gray-500 font-medium">
+            {Number(product.rating ?? 0).toFixed(1)} ({(product.review_count ?? 0).toLocaleString()})
+          </span>
         </div>
 
-        <p className="text-xs text-gray-500 line-clamp-2 mb-4 leading-relaxed">{product.shortDescription}</p>
+        <p className="text-xs text-gray-500 line-clamp-2 mb-4 leading-relaxed">{product.short_description}</p>
 
         {/* Price row */}
         <div className="mt-auto">
           <div className="flex items-center gap-2 mb-3">
-            <span className="text-xl font-display font-bold text-vigyanics-blue">{formatPrice(product.price)}</span>
-            {product.originalPrice && (
-              <span className="text-sm text-gray-400 line-through">{formatPrice(product.originalPrice)}</span>
+            <span className="text-xl font-display font-bold text-vigyanics-blue">{formatPrice(displayPrice)}</span>
+            {product.sale_price && (
+              <span className="text-sm text-gray-400 line-through">{formatPrice(product.price)}</span>
             )}
           </div>
 
           <motion.button
             whileTap={{ scale: 0.95 }}
             onClick={handleAddToCart}
-            className="w-full py-2.5 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 transition-all duration-300"
+            disabled={product.stock_status === "out_of_stock"}
+            className="w-full py-2.5 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
             style={{
-              background: addedAnim ? "#00C896" : product.colorAccent,
-              color: addedAnim ? "#fff" : product.colorAccent === "#00D4FF" ? "#0B1F3A" : "#fff",
-              boxShadow: `0 4px 20px ${product.colorAccent}35`,
+              background: addedAnim ? "#00C896" : colorAccent,
+              color: addedAnim ? "#fff" : colorAccent === "#00D4FF" ? "#0B1F3A" : "#fff",
+              boxShadow: `0 4px 20px ${colorAccent}35`,
             }}
             data-testid={`add-to-cart-${product.id}`}
           >
-            {addedAnim ? (
-              <><span>✓</span> Added!</>
+            {product.stock_status === "out_of_stock" ? (
+              "Out of Stock"
+            ) : addedAnim ? (
+              <>Added!</>
             ) : (
               <><ShoppingCart className="w-4 h-4" /> Add to Cart</>
             )}

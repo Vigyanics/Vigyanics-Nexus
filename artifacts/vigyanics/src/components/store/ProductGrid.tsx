@@ -2,12 +2,13 @@ import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import ProductCard from "./ProductCard";
-import type { Product } from "@/data/products";
+import type { StoreProduct } from "@/hooks/useProducts";
 
 interface ProductGridProps {
   title: string;
   subtitle?: string;
-  products: Product[];
+  products: StoreProduct[];
+  loading?: boolean;
   badge?: string;
   badgeColor?: string;
   id?: string;
@@ -15,7 +16,23 @@ interface ProductGridProps {
   bgClass?: string;
 }
 
-export default function ProductGrid({ title, subtitle, products, badge, badgeColor = "#00D4FF", id, viewAllHref, bgClass = "bg-gray-50/50" }: ProductGridProps) {
+function ProductSkeleton() {
+  return (
+    <div className="bg-white rounded-3xl border border-gray-100 overflow-hidden animate-pulse">
+      <div className="h-48 bg-gray-100" />
+      <div className="p-5 space-y-3">
+        <div className="h-4 bg-gray-100 rounded w-3/4" />
+        <div className="h-3 bg-gray-100 rounded w-1/2" />
+        <div className="h-3 bg-gray-100 rounded w-full" />
+        <div className="h-10 bg-gray-100 rounded-xl mt-4" />
+      </div>
+    </div>
+  );
+}
+
+export default function ProductGrid({
+  title, subtitle, products, loading = false, badge, badgeColor = "#00D4FF", id, viewAllHref, bgClass = "bg-gray-50/50",
+}: ProductGridProps) {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-60px" });
 
@@ -51,11 +68,21 @@ export default function ProductGrid({ title, subtitle, products, badge, badgeCol
           )}
         </motion.div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {products.map((product, idx) => (
-            <ProductCard key={product.id} product={product} index={idx} />
-          ))}
-        </div>
+        {loading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {Array.from({ length: 4 }).map((_, i) => <ProductSkeleton key={i} />)}
+          </div>
+        ) : products.length === 0 ? (
+          <div className="text-center py-16 text-gray-400">
+            <p className="text-lg">No products found.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {products.map((product, idx) => (
+              <ProductCard key={product.id} product={product} index={idx} />
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );

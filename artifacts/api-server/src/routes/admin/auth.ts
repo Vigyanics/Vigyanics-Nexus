@@ -1,53 +1,65 @@
 import { Router } from "express";
-import bcrypt from "bcryptjs";
-import { eq } from "drizzle-orm";
-import { db, usersTable } from "@workspace/db";
-import { signToken, requireSuperAdmin } from "../../middlewares/auth";
+import { supabaseAdmin } from "../../lib/supabase";
+import { requireSuperAdmin } from "../../middlewares/auth";
 import type { IRouter } from "express";
 
 const router: IRouter = Router();
 
+// Admin login via Supabase Auth
 router.post("/admin/auth/login", async (req, res): Promise<void> => {
   const { email, password } = req.body as { email?: string; password?: string };
-
   if (!email || !password) {
     res.status(400).json({ error: "email and password are required" });
     return;
   }
 
-  const [user] = await db.select().from(usersTable).where(eq(usersTable.email, email));
-  if (!user || !user.isActive) {
+  // Sign in via Supabase Auth
+  const { data: authData, error: authError } = await supabaseAdmin.auth.signInWithPassword({
+    email,
+    password,
+  });
+
+  if (authError || !authData.user) {
     res.status(401).json({ error: "Invalid credentials" });
     return;
   }
 
-  if (user.role !== "admin" && user.role !== "super_admin") {
+  // Check customer profile for admin role
+  const { data: profile, error: profileError } = await supabaseAdmin
+    .from("customers")
+    .select("*")
+    .eq("id", authData.user.id)
+    .single();
+
+  if (profileError || !profile) {
+    res.status(401).json({ error: "Account not found" });
+    return;
+  }
+
+  if (profile.role !== "admin" && profile.role !== "super_admin") {
     res.status(403).json({ error: "Admin access required" });
     return;
   }
 
-  const valid = await bcrypt.compare(password, user.passwordHash);
-  if (!valid) {
-    res.status(401).json({ error: "Invalid credentials" });
+  if (!profile.is_active) {
+    res.status(403).json({ error: "Account is deactivated" });
     return;
   }
 
-  const token = signToken({ userId: user.id, email: user.email, role: user.role });
   res.json({
-    token,
+    token: authData.session.access_token,
     user: {
-      id: user.id,
-      email: user.email,
-      role: user.role,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      phone: user.phone,
-      isActive: user.isActive,
-      createdAt: user.createdAt,
+      id: profile.id,
+      email: profile.email,
+      role: profile.role,
+      firstName: profile.first_name,
+      lastName: profile.last_name,
+      isActive: profile.is_active,
     },
   });
 });
 
+// Create new admin user (super_admin only)
 router.post("/admin/auth/create-admin", requireSuperAdmin, async (req, res): Promise<void> => {
   const { email, password, firstName, lastName } = req.body as {
     email?: string;
@@ -61,27 +73,30 @@ router.post("/admin/auth/create-admin", requireSuperAdmin, async (req, res): Pro
     return;
   }
 
-  const [existing] = await db.select({ id: usersTable.id }).from(usersTable).where(eq(usersTable.email, email));
-  if (existing) {
-    res.status(409).json({ error: "Email already registered" });
+  const { data, error } = await supabaseAdmin.auth.admin.createUser({
+    email,
+    password,
+    user_metadata: { first_name: firstName, last_name: lastName, role: "admin" },
+    email_confirm: true,
+  });
+
+  if (error) {
+    res.status(400).json({ error: error.message });
     return;
   }
 
-  const passwordHash = await bcrypt.hash(password, 12);
-  const [user] = await db
-    .insert(usersTable)
-    .values({ email, passwordHash, firstName, lastName, role: "admin" })
-    .returning();
+  // Update role to admin in customers table
+  await supabaseAdmin
+    .from("customers")
+    .update({ role: "admin" })
+    .eq("id", data.user.id);
 
   res.status(201).json({
-    id: user.id,
-    email: user.email,
-    role: user.role,
-    firstName: user.firstName,
-    lastName: user.lastName,
-    phone: user.phone,
-    isActive: user.isActive,
-    createdAt: user.createdAt,
+    id: data.user.id,
+    email: data.user.email,
+    role: "admin",
+    firstName,
+    lastName,
   });
 });
 
