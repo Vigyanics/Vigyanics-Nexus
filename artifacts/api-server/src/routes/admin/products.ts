@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { supabaseAdmin } from "../../lib/supabase";
 import { requireAdmin } from "../../middlewares/auth";
+import { productToAdmin } from "./serializers";
 import type { IRouter } from "express";
 
 const router: IRouter = Router();
@@ -21,10 +22,18 @@ router.get("/admin/products", requireAdmin, async (req, res): Promise<void> => {
   if (categoryId) query = query.eq("category_id", parseInt(categoryId, 10));
   if (search) query = query.or(`name.ilike.%${search}%,sku.ilike.%${search}%`);
 
-  const { data, error, count } = await query;
+  let result;
+  try {
+    result = await query;
+  } catch {
+    res.json({ data: [], total: 0, page: pageNum, limit: limitNum });
+    return;
+  }
+
+  const { data, error, count } = result;
   if (error) { res.status(500).json({ error: error.message }); return; }
 
-  res.json({ data: data ?? [], total: count ?? 0, page: pageNum, limit: limitNum });
+  res.json({ data: (data ?? []).map(productToAdmin), total: count ?? 0, page: pageNum, limit: limitNum });
 });
 
 router.post("/admin/products", requireAdmin, async (req, res): Promise<void> => {
@@ -63,7 +72,7 @@ router.post("/admin/products", requireAdmin, async (req, res): Promise<void> => 
     .single();
 
   if (error) { res.status(400).json({ error: error.message }); return; }
-  res.status(201).json(data);
+  res.status(201).json(productToAdmin(data));
 });
 
 router.delete("/admin/products/bulk", requireAdmin, async (req, res): Promise<void> => {
@@ -78,7 +87,7 @@ router.delete("/admin/products/bulk", requireAdmin, async (req, res): Promise<vo
 });
 
 router.get("/admin/products/:id", requireAdmin, async (req, res): Promise<void> => {
-  const id = parseInt(req.params.id, 10);
+  const id = parseInt(String(req.params.id), 10);
   if (isNaN(id)) { res.status(400).json({ error: "Invalid id" }); return; }
 
   const { data, error } = await supabaseAdmin
@@ -88,11 +97,11 @@ router.get("/admin/products/:id", requireAdmin, async (req, res): Promise<void> 
     .single();
 
   if (error || !data) { res.status(404).json({ error: "Product not found" }); return; }
-  res.json(data);
+  res.json({ ...productToAdmin(data), productImages: data.product_images ?? [] });
 });
 
 router.patch("/admin/products/:id", requireAdmin, async (req, res): Promise<void> => {
-  const id = parseInt(req.params.id, 10);
+  const id = parseInt(String(req.params.id), 10);
   if (isNaN(id)) { res.status(400).json({ error: "Invalid id" }); return; }
 
   const body = req.body as Record<string, unknown>;
@@ -118,11 +127,11 @@ router.patch("/admin/products/:id", requireAdmin, async (req, res): Promise<void
     .single();
 
   if (error || !data) { res.status(404).json({ error: "Product not found" }); return; }
-  res.json(data);
+  res.json(productToAdmin(data));
 });
 
 router.delete("/admin/products/:id", requireAdmin, async (req, res): Promise<void> => {
-  const id = parseInt(req.params.id, 10);
+  const id = parseInt(String(req.params.id), 10);
   if (isNaN(id)) { res.status(400).json({ error: "Invalid id" }); return; }
 
   const { error } = await supabaseAdmin.from("products").delete().eq("id", id);
@@ -131,7 +140,7 @@ router.delete("/admin/products/:id", requireAdmin, async (req, res): Promise<voi
 });
 
 router.post("/admin/products/:id/duplicate", requireAdmin, async (req, res): Promise<void> => {
-  const id = parseInt(req.params.id, 10);
+  const id = parseInt(String(req.params.id), 10);
   if (isNaN(id)) { res.status(400).json({ error: "Invalid id" }); return; }
 
   const { data: original, error: fetchErr } = await supabaseAdmin
@@ -147,7 +156,7 @@ router.post("/admin/products/:id/duplicate", requireAdmin, async (req, res): Pro
     .single();
 
   if (error) { res.status(400).json({ error: error.message }); return; }
-  res.status(201).json(data);
+  res.status(201).json(productToAdmin(data));
 });
 
 export default router;

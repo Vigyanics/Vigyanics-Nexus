@@ -5,6 +5,38 @@ import type { IRouter } from "express";
 
 const router: IRouter = Router();
 
+// Request admin access. A super admin must approve this in the admin panel.
+router.post("/auth/admin-request", async (req, res): Promise<void> => {
+  const { email, firstName, lastName, phone, message } = req.body as {
+    email?: string; firstName?: string; lastName?: string; phone?: string; message?: string;
+  };
+
+  if (!email || !firstName || !lastName) {
+    res.status(400).json({ error: "email, firstName and lastName are required" });
+    return;
+  }
+
+  const { error } = await supabaseAdmin.from("admin_requests").insert({
+    email,
+    first_name: firstName,
+    last_name: lastName,
+    phone: phone || null,
+    message: message || null,
+    status: "pending",
+  });
+
+  if (error) {
+    if (error.code === "23505") {
+      res.status(409).json({ error: "An admin access request already exists for this email" });
+      return;
+    }
+    res.status(400).json({ error: error.message });
+    return;
+  }
+
+  res.status(201).json({ message: "Admin access request submitted" });
+});
+
 // Customer registration
 router.post("/auth/register", async (req, res): Promise<void> => {
   const { email, password, firstName, lastName, phone } = req.body as {

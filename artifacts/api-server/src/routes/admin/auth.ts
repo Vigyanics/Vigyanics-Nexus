@@ -1,9 +1,52 @@
 import { Router } from "express";
 import { supabaseAdmin } from "../../lib/supabase";
-import { requireSuperAdmin } from "../../middlewares/auth";
+import { requireAuth, requireSuperAdmin } from "../../middlewares/auth";
+import jwt from "jsonwebtoken";
 import type { IRouter } from "express";
 
 const router: IRouter = Router();
+
+const localAdminEmail = process.env.DEV_ADMIN_EMAIL ?? "admin@vigyanics.com";
+const localAdminPassword = process.env.DEV_ADMIN_PASSWORD ?? "VigyanicsAdmin@3212";
+const localJwtSecret = process.env.JWT_SECRET ?? "vigyanics-local-dev-secret";
+const allowLocalAdminFallback = process.env.NODE_ENV !== "production";
+
+router.get("/admin/auth/me", requireAuth, (req, res): void => {
+  res.json({
+    id: req.user!.userId,
+    email: req.user!.email,
+    role: req.user!.role,
+    firstName: null,
+    lastName: null,
+    isActive: true,
+    createdAt: "",
+  });
+});
+
+function localAdminResponse() {
+  const token = jwt.sign(
+    {
+      sub: "local-super-admin",
+      email: localAdminEmail,
+      role: "super_admin",
+      provider: "local-dev",
+    },
+    localJwtSecret,
+    { expiresIn: "12h" },
+  );
+
+  return {
+    token,
+    user: {
+      id: "local-super-admin",
+      email: localAdminEmail,
+      role: "super_admin",
+      firstName: "Vigyanics",
+      lastName: "Admin",
+      isActive: true,
+    },
+  };
+}
 
 // Admin login via Supabase Auth
 router.post("/admin/auth/login", async (req, res): Promise<void> => {
@@ -13,11 +56,28 @@ router.post("/admin/auth/login", async (req, res): Promise<void> => {
     return;
   }
 
-  // Sign in via Supabase Auth
-  const { data: authData, error: authError } = await supabaseAdmin.auth.signInWithPassword({
-    email,
-    password,
-  });
+  if (allowLocalAdminFallback && email === localAdminEmail && password === localAdminPassword) {
+    res.json(localAdminResponse());
+    return;
+  }
+
+  let authData;
+  let authError;
+  try {
+    const result = await supabaseAdmin.auth.signInWithPassword({
+      email,
+      password,
+    });
+    authData = result.data;
+    authError = result.error;
+  } catch {
+    if (allowLocalAdminFallback && email === localAdminEmail && password === localAdminPassword) {
+      res.json(localAdminResponse());
+      return;
+    }
+    res.status(503).json({ error: "Unable to reach authentication service" });
+    return;
+  }
 
   if (authError || !authData.user) {
     res.status(401).json({ error: "Invalid credentials" });

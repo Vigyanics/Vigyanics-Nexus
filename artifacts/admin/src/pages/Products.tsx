@@ -82,10 +82,12 @@ export default function Products() {
   const [form, setForm] = useState<ProductForm>(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState("");
+  const [loadError, setLoadError] = useState("");
   const limit = 20;
 
   async function load() {
     setLoading(true);
+    setLoadError("");
     try {
       const params = new URLSearchParams({ page: String(page), limit: String(limit) });
       if (search) params.set("search", search);
@@ -93,13 +95,18 @@ export default function Products() {
       const data = await api.get<ProductListResponse>(`/admin/products?${params}`);
       setProducts(data.data);
       setTotal(data.total);
+    } catch (e: unknown) {
+      const err = e as { data?: { error?: string }; message?: string };
+      setProducts([]);
+      setTotal(0);
+      setLoadError(err?.data?.error ?? err?.message ?? "Failed to load products");
     } finally {
       setLoading(false);
     }
   }
 
   useEffect(() => {
-    api.get<Category[]>("/admin/categories").then(setCategories).catch(() => {});
+    api.get<Category[]>("/admin/categories").then(setCategories).catch(() => setCategories([]));
   }, []);
 
   useEffect(() => { load(); }, [page, statusFilter]);
@@ -254,6 +261,13 @@ export default function Products() {
           </button>
         </div>
       </div>
+
+      {/* Filters */}
+      {loadError && (
+        <div className="rounded-xl border border-yellow-500/20 bg-yellow-500/10 px-4 py-3 text-sm text-yellow-200">
+          {loadError}
+        </div>
+      )}
 
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-3">

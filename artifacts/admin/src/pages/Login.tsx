@@ -6,7 +6,7 @@ import api from "@/lib/api";
 interface AuthResponse {
   token: string;
   user: {
-    id: number;
+    id: string;
     email: string;
     role: string;
     firstName: string | null;

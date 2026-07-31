@@ -6,6 +6,7 @@ import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import Store from "@/pages/Store";
 import ProductDetail from "@/pages/ProductDetail";
+import Access from "@/pages/Access";
 import { CartProvider } from "@/context/CartContext";
 import { IntroProvider } from "@/context/IntroContext";
 
@@ -15,6 +16,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
+      <Route path="/access" component={Access} />
       <Route path="/store" component={Store} />
       <Route path="/store/:id">
         {(params) => <ProductDetail productId={params.id ?? ""} />}

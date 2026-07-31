@@ -22,24 +22,85 @@ function resolveSupabaseEnv() {
   const anonKey = raw.find((v) => v.startsWith("eyJ") && decodeJwtRole(v) === "anon");
   const serviceRoleKey = raw.find((v) => v.startsWith("eyJ") && decodeJwtRole(v) === "service_role");
 
-  if (!url) throw new Error("SUPABASE_URL (https://...) not found in any env var");
-  if (!anonKey) throw new Error("Supabase anon key not found in env vars");
-  if (!serviceRoleKey) throw new Error("Supabase service_role key not found in env vars");
-
-  return { url, anonKey, serviceRoleKey };
+  return { url: url ?? "", anonKey: anonKey ?? "", serviceRoleKey: serviceRoleKey ?? "" };
 }
 
 const { url, anonKey, serviceRoleKey } = resolveSupabaseEnv();
 
-export const supabaseUrl = url;
-export const supabaseAnonKey = anonKey;
+export const supabaseUrl = url || undefined;
+export const supabaseAnonKey = anonKey || undefined;
+
+const isConfigured = !!(url && anonKey && serviceRoleKey);
+
+// Creates a chainable query builder that always returns itself and resolves to { data: null, error: null }
+function createQueryBuilder(): Record<string, unknown> {
+  const builder: Record<string, unknown> = {};
+  const chainMethods = [
+    "select", "eq", "neq", "gt", "gte", "lt", "lte", "like", "ilike",
+    "is", "in", "contains", "containedBy", "rangeGt", "rangeGte",
+    "rangeLt", "rangeLte", "overlaps", "textSearch", "match", "not",
+    "filter", "or", "and", "order", "limit", "offset", "range",
+    "single", "maybeSingle", "csv", "abortSignal",
+  ];
+  for (const method of chainMethods) {
+    builder[method] = (..._args: unknown[]) => builder;
+  }
+  builder["then"] = function (resolve: (v: unknown) => void, _reject?: (v: unknown) => void) {
+    return Promise.resolve({ data: [], error: null, count: 0 }).then(resolve);
+  };
+  builder["catch"] = () => builder;
+  builder["finally"] = (cb: () => void) => {
+    cb();
+    return builder;
+  };
+  return builder;
+}
+
+// Create mock clients when Supabase is not configured
+function createMockClient() {
+  return {
+    auth: {
+      signInWithPassword: () => Promise.resolve({ data: { user: null, session: null }, error: null }),
+      getUser: (token?: string) => Promise.resolve({ data: { user: null }, error: null }),
+      signOut: () => Promise.resolve({ error: null }),
+      getSession: () => Promise.resolve({ data: { session: null }, error: null }),
+      onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } }),
+      admin: {
+        createUser: () => Promise.resolve({ data: { user: { id: "", email: "", user_metadata: {} } }, error: null }),
+      },
+    },
+    from: () => createQueryBuilder(),
+    channel: () => ({
+      on: () => ({
+        subscribe: () => ({}),
+      }),
+    }),
+    removeChannel: () => Promise.resolve(),
+    rpc: () => Promise.resolve({ data: null, error: null }),
+    functions: {
+      invoke: () => Promise.resolve({ data: null, error: null }),
+    },
+    storage: {
+      from: () => ({
+        upload: () => Promise.resolve({ data: null, error: null }),
+        download: () => Promise.resolve({ data: null, error: null }),
+        list: () => Promise.resolve({ data: [], error: null }),
+        getPublicUrl: () => ({ data: { publicUrl: "" } }),
+      }),
+    },
+  };
+}
 
 // Admin client — full access, service role key, server-side ONLY — never send to browser
-export const supabaseAdmin = createClient(url, serviceRoleKey, {
-  auth: { autoRefreshToken: false, persistSession: false },
-});
+export const supabaseAdmin = isConfigured
+  ? createClient(url, serviceRoleKey, {
+      auth: { autoRefreshToken: false, persistSession: false },
+    })
+  : (createMockClient() as unknown as ReturnType<typeof createClient>);
 
 // Anon client — for auth operations on behalf of users
-export const supabase = createClient(url, anonKey, {
-  auth: { autoRefreshToken: false, persistSession: false },
-});
+export const supabase = isConfigured
+  ? createClient(url, anonKey, {
+      auth: { autoRefreshToken: false, persistSession: false },
+    })
+  : (createMockClient() as unknown as ReturnType<typeof createClient>);

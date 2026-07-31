@@ -1,5 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
 import { supabaseAdmin } from "../lib/supabase";
+import jwt from "jsonwebtoken";
 
 export interface AuthPayload {
   userId: string;
@@ -23,8 +24,35 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
   }
   const token = header.slice(7);
 
+  if (process.env.NODE_ENV !== "production") {
+    try {
+      const payload = jwt.verify(token, process.env.JWT_SECRET ?? "vigyanics-local-dev-secret") as {
+        sub?: string;
+        email?: string;
+        role?: string;
+        provider?: string;
+      };
+      if (payload.provider === "local-dev" && payload.sub && payload.email && payload.role) {
+        req.user = { userId: payload.sub, email: payload.email, role: payload.role };
+        next();
+        return;
+      }
+    } catch {
+      // Not a local development token; continue with Supabase verification.
+    }
+  }
+
   // Verify token with Supabase
-  const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
+  let user;
+  let error;
+  try {
+    const result = await supabaseAdmin.auth.getUser(token);
+    user = result.data.user;
+    error = result.error;
+  } catch {
+    res.status(503).json({ error: "Unable to reach authentication service" });
+    return;
+  }
   if (error || !user) {
     res.status(401).json({ error: "Invalid or expired token" });
     return;

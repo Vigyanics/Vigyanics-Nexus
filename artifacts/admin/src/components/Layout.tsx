@@ -6,6 +6,7 @@ import {
   Tag,
   ShoppingCart,
   Users,
+  UserPlus,
   LogOut,
   Menu,
   X,
@@ -32,6 +33,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const [location, navigate] = useLocation();
   const { user, logout } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const navItems = [
+    ...NAV_ITEMS,
+    ...(user?.role === "super_admin"
+      ? [{ label: "Admin Requests", path: "/admin-requests", icon: <UserPlus className="w-4 h-4" /> }]
+      : []),
+  ];
 
   function handleLogout() {
     logout();
@@ -54,7 +61,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
       <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto">
         <p className="text-xs font-medium text-muted-foreground px-3 py-2 uppercase tracking-widest">Navigation</p>
-        {NAV_ITEMS.map((item) => {
+        {navItems.map((item) => {
           const isActive = item.path === "/" ? location === "/" : location.startsWith(item.path);
           return (
             <button
@@ -123,7 +130,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
           <div className="flex-1">
             <h2 className="text-sm font-semibold text-foreground font-display">
-              {NAV_ITEMS.find((n) => (n.path === "/" ? location === "/" : location.startsWith(n.path)))?.label ?? "Admin"}
+              {navItems.find((n) => (n.path === "/" ? location === "/" : location.startsWith(n.path)))?.label ?? "Admin"}
             </h2>
           </div>
 

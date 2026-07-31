@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
-import { Menu, X, Atom, ShoppingCart } from "lucide-react";
+import { Menu, X, Atom, ShoppingCart, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/context/CartContext";
 import { motion, AnimatePresence } from "framer-motion";
@@ -121,6 +121,15 @@ export default function Navbar() {
               </AnimatePresence>
             </button>
 
+            <button
+              onClick={() => navigate("/access")}
+              className="inline-flex h-10 items-center gap-2 rounded-full border border-vigyanics-blue/10 bg-white/80 px-4 text-sm font-semibold text-vigyanics-blue shadow-sm transition-all duration-200 hover:border-vigyanics-cyan/40 hover:bg-vigyanics-cyan/10"
+              data-testid="button-access"
+            >
+              <LogIn className="w-4 h-4" />
+              Sign in / Join
+            </button>
+
             <Button className="bg-vigyanics-blue hover:bg-vigyanics-cyan text-white border-none shadow-[0_4px_14px_0_rgba(11,31,58,0.39)] hover:shadow-[0_6px_20px_rgba(0,212,255,0.23)] hover:-translate-y-0.5 transition-all duration-200 rounded-full px-6">
               Book Free Trial
             </Button>
@@ -173,6 +182,13 @@ export default function Navbar() {
                 className="text-lg font-semibold p-2 text-vigyanics-cyan text-left"
               >
                 {isStore ? "Back to Website" : "Visit Store"}
+              </button>
+              <button
+                onClick={() => { navigate("/access"); setMobileMenuOpen(false); }}
+                className="flex items-center gap-2 text-lg font-semibold p-2 text-vigyanics-blue text-left"
+              >
+                <LogIn className="w-5 h-5" />
+                Sign in / Join
               </button>
               <Button className="w-full mt-2 rounded-full bg-vigyanics-blue text-white">
                 Book Free Trial

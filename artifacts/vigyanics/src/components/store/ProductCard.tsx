@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Star, Heart, ShoppingCart, Eye, Zap } from "lucide-react";
+import { Star, Heart, ShoppingCart, Eye } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useLocation } from "wouter";
 import type { StoreProduct } from "@/hooks/useProducts";
+import { ProductImagePlaceholder } from "@/components/ui/ProductPlaceholder";
 
 interface ProductCardProps {
   product: StoreProduct;
@@ -99,19 +100,11 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
           style={{ background: `radial-gradient(circle at 50% 50%, ${colorAccent}, transparent 70%)` }}
         />
 
-        {product.thumbnail ? (
-          <img src={product.thumbnail} alt={product.name} className="relative w-full h-full object-contain p-6" />
-        ) : (
-          <div className="relative flex flex-col items-center gap-3 px-6 text-center">
-            <div
-              className="w-20 h-20 rounded-2xl flex items-center justify-center shadow-lg"
-              style={{ background: `${colorAccent}20`, border: `2px solid ${colorAccent}40` }}
-            >
-              <Zap className="w-8 h-8" style={{ color: colorAccent }} />
-            </div>
-            <span className="text-xs font-semibold text-gray-400 uppercase tracking-widest">{product.categories?.name ?? ""}</span>
-          </div>
-        )}
+{product.thumbnail ? (
+            <img src={product.thumbnail} alt={product.name} className="relative w-full h-full object-contain p-6" onError={(e) => { e.currentTarget.style.display = "none"; }} />
+          ) : (
+            <ProductImagePlaceholder color={colorAccent} label={product.categories?.name ?? ""} className="w-full h-full" />
+          )}
 
         {/* Quick view overlay */}
         <div className="absolute inset-0 bg-vigyanics-blue/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">

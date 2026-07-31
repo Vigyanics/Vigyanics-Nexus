@@ -23,6 +23,16 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
+function isLocalDevToken(token: string | null): boolean {
+  if (!token) return false;
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1] ?? "")) as { provider?: string };
+    return payload.provider === "local-dev";
+  } catch {
+    return false;
+  }
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [token, setToken] = useState<string | null>(() => localStorage.getItem("admin_token"));
   const [user, setUser] = useState<User | null>(() => {
@@ -39,6 +49,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const storedToken = localStorage.getItem("admin_token");
     if (!storedToken) {
+      setIsLoading(false);
+      return;
+    }
+    if (isLocalDevToken(storedToken)) {
       setIsLoading(false);
       return;
     }
@@ -82,6 +96,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Listen for Supabase session changes
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (isLocalDevToken(localStorage.getItem("admin_token"))) return;
       if (event === "SIGNED_OUT" || !session) {
         setToken(null);
         setUser(null);

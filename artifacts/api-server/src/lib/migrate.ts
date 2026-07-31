@@ -250,6 +250,20 @@ create table if not exists public.admin_logs (
   entity text, entity_id text, details jsonb,
   created_at timestamptz not null default now()
 );
+
+-- ADMIN ACCESS REQUESTS
+create table if not exists public.admin_requests (
+  id bigserial primary key,
+  email text not null unique,
+  first_name text not null,
+  last_name text not null,
+  phone text,
+  message text,
+  status text not null default 'pending' check (status in ('pending','approved','rejected')),
+  reviewed_by uuid references public.customers(id) on delete set null,
+  reviewed_at timestamptz,
+  created_at timestamptz not null default now()
+);
 `;
 
 const RLS_SQL = `
@@ -276,6 +290,7 @@ alter table public.testimonials enable row level security;
 alter table public.gallery enable row level security;
 alter table public.settings enable row level security;
 alter table public.admin_logs enable row level security;
+alter table public.admin_requests enable row level security;
 
 -- Public read policies (products, categories, blogs, events, courses, workshops, testimonials, gallery, banners)
 create policy if not exists "Public can read published products" on public.products for select using (status = 'published');

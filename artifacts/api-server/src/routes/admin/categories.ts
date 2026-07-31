@@ -1,29 +1,44 @@
 import { Router } from "express";
 import { supabaseAdmin } from "../../lib/supabase";
 import { requireAdmin } from "../../middlewares/auth";
+import { categoryToAdmin } from "./serializers";
 import type { IRouter } from "express";
 
 const router: IRouter = Router();
 
 router.get("/admin/categories", requireAdmin, async (req, res): Promise<void> => {
-  const { data, error } = await supabaseAdmin
-    .from("categories")
-    .select("*")
-    .order("sort_order", { ascending: true });
+  let categoriesResult;
+  try {
+    categoriesResult = await supabaseAdmin
+      .from("categories")
+      .select("*")
+      .order("sort_order", { ascending: true });
+  } catch {
+    res.json([]);
+    return;
+  }
+
+  const { data, error } = categoriesResult;
 
   if (error) { res.status(500).json({ error: error.message }); return; }
 
   // Get product counts
-  const { data: counts } = await supabaseAdmin
-    .from("products")
-    .select("category_id");
+  let counts: { category_id: number | null }[] = [];
+  try {
+    const countsResult = await supabaseAdmin
+      .from("products")
+      .select("category_id");
+    counts = countsResult.data ?? [];
+  } catch {
+    counts = [];
+  }
 
   const countMap = new Map<number, number>();
-  (counts ?? []).forEach((p: { category_id: number | null }) => {
+  counts.forEach((p: { category_id: number | null }) => {
     if (p.category_id) countMap.set(p.category_id, (countMap.get(p.category_id) ?? 0) + 1);
   });
 
-  res.json((data ?? []).map((c) => ({ ...c, productCount: countMap.get(c.id) ?? 0 })));
+  res.json((data ?? []).map((c) => categoryToAdmin(c, countMap.get(c.id) ?? 0)));
 });
 
 router.post("/admin/categories", requireAdmin, async (req, res): Promise<void> => {
@@ -37,11 +52,11 @@ router.post("/admin/categories", requireAdmin, async (req, res): Promise<void> =
     .single();
 
   if (error) { res.status(400).json({ error: error.message }); return; }
-  res.status(201).json({ ...data, productCount: 0 });
+  res.status(201).json(categoryToAdmin(data, 0));
 });
 
 router.patch("/admin/categories/:id", requireAdmin, async (req, res): Promise<void> => {
-  const id = parseInt(req.params.id, 10);
+  const id = parseInt(String(req.params.id), 10);
   if (isNaN(id)) { res.status(400).json({ error: "Invalid id" }); return; }
 
   const body = req.body as Record<string, unknown>;
@@ -63,11 +78,11 @@ router.patch("/admin/categories/:id", requireAdmin, async (req, res): Promise<vo
     .single();
 
   if (error || !data) { res.status(404).json({ error: "Category not found" }); return; }
-  res.json({ ...data, productCount: 0 });
+  res.json(categoryToAdmin(data, 0));
 });
 
 router.delete("/admin/categories/:id", requireAdmin, async (req, res): Promise<void> => {
-  const id = parseInt(req.params.id, 10);
+  const id = parseInt(String(req.params.id), 10);
   if (isNaN(id)) { res.status(400).json({ error: "Invalid id" }); return; }
 
   const { error } = await supabaseAdmin.from("categories").delete().eq("id", id);

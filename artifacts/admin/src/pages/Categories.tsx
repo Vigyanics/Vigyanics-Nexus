@@ -24,12 +24,18 @@ export default function Categories() {
   const [form, setForm] = useState({ name: "", slug: "", description: "" });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [loadError, setLoadError] = useState("");
 
   async function load() {
     setLoading(true);
+    setLoadError("");
     try {
       const data = await api.get<Category[]>("/admin/categories");
       setCategories(data);
+    } catch (e: unknown) {
+      const err = e as { data?: { error?: string }; message?: string };
+      setCategories([]);
+      setLoadError(err?.data?.error ?? err?.message ?? "Failed to load categories");
     } finally {
       setLoading(false);
     }
@@ -130,6 +136,12 @@ export default function Categories() {
             </button>
             <button onClick={() => setShowForm(false)} className="btn-ghost">Cancel</button>
           </div>
+        </div>
+      )}
+
+      {loadError && (
+        <div className="rounded-xl border border-yellow-500/20 bg-yellow-500/10 px-4 py-3 text-sm text-yellow-200">
+          {loadError}
         </div>
       )}
 

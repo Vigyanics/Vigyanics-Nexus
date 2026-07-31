@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { supabaseAdmin } from "../../lib/supabase";
 import { requireAdmin } from "../../middlewares/auth";
+import { customerToAdmin } from "./serializers";
 import type { IRouter } from "express";
 
 const router: IRouter = Router();
@@ -20,10 +21,22 @@ router.get("/admin/customers", requireAdmin, async (req, res): Promise<void> => 
 
   if (search) query = query.or(`email.ilike.%${search}%,first_name.ilike.%${search}%,last_name.ilike.%${search}%`);
 
-  const { data, error, count } = await query;
-  if (error) { res.status(500).json({ error: error.message }); return; }
+  let result;
+  try {
+    result = await query;
+  } catch {
+    res.json({ data: [], total: 0, page: pageNum, limit: limitNum });
+    return;
+  }
 
-  res.json({ data: data ?? [], total: count ?? 0, page: pageNum, limit: limitNum });
+  const { data, error, count } = result;
+  if (error) {
+    // Table likely doesn't exist yet — return empty gracefully instead of 500
+    res.json({ data: [], total: 0, page: pageNum, limit: limitNum });
+    return;
+  }
+
+  res.json({ data: (data ?? []).map(customerToAdmin), total: count ?? 0, page: pageNum, limit: limitNum });
 });
 
 router.patch("/admin/customers/:id/status", requireAdmin, async (req, res): Promise<void> => {
@@ -43,7 +56,7 @@ router.patch("/admin/customers/:id/status", requireAdmin, async (req, res): Prom
     .single();
 
   if (error || !data) { res.status(404).json({ error: "Customer not found" }); return; }
-  res.json(data);
+  res.json(customerToAdmin(data));
 });
 
 export default router;

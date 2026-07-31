@@ -385,6 +385,22 @@ create table if not exists public.admin_logs (
 );
 
 -- =====================
+-- ADMIN ACCESS REQUESTS
+-- =====================
+create table if not exists public.admin_requests (
+  id bigserial primary key,
+  email text not null unique,
+  first_name text not null,
+  last_name text not null,
+  phone text,
+  message text,
+  status text not null default 'pending' check (status in ('pending','approved','rejected')),
+  reviewed_by uuid references public.customers(id) on delete set null,
+  reviewed_at timestamptz,
+  created_at timestamptz not null default now()
+);
+
+-- =====================
 -- STORAGE BUCKETS
 -- =====================
 insert into storage.buckets (id, name, public) values
@@ -422,6 +438,7 @@ alter table public.testimonials enable row level security;
 alter table public.gallery enable row level security;
 alter table public.settings enable row level security;
 alter table public.admin_logs enable row level security;
+alter table public.admin_requests enable row level security;
 
 -- Public read policies
 create policy "Public read published products" on public.products for select using (status = 'published');

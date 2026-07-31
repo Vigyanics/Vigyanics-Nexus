@@ -5,6 +5,7 @@ import productsRouter from "./products";
 import categoriesRouter from "./categories";
 import ordersRouter from "./orders";
 import customersRouter from "./customers";
+import adminRequestsRouter from "./adminRequests";
 import type { IRouter } from "express";
 
 const router: IRouter = Router();
@@ -15,5 +16,6 @@ router.use(productsRouter);
 router.use(categoriesRouter);
 router.use(ordersRouter);
 router.use(customersRouter);
+router.use(adminRequestsRouter);
 
 export default router;

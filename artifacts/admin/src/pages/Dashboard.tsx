@@ -62,14 +62,25 @@ export default function Dashboard() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    Promise.all([
+    let mounted = true;
+    Promise.allSettled([
       api.get<Stats>("/admin/dashboard/stats"),
       api.get<Order[]>("/admin/dashboard/recent-orders"),
     ])
-      .then(([s, o]) => { setStats(s); setOrders(o); })
-      .finally(() => setLoading(false));
+      .then(([statsResult, ordersResult]) => {
+        if (!mounted) return;
+        if (statsResult.status === "fulfilled") setStats(statsResult.value);
+        else setError(statsResult.reason?.message ?? "Unable to load dashboard stats");
+
+        if (ordersResult.status === "fulfilled") setOrders(ordersResult.value);
+      })
+      .finally(() => {
+        if (mounted) setLoading(false);
+      });
+    return () => { mounted = false; };
   }, []);
 
   if (loading) {
@@ -86,6 +97,12 @@ export default function Dashboard() {
         <h1 className="text-2xl font-bold text-foreground font-display">Dashboard</h1>
         <p className="text-muted-foreground text-sm mt-0.5">Welcome back. Here's what's happening.</p>
       </div>
+
+      {error && (
+        <div className="rounded-xl border border-yellow-500/20 bg-yellow-500/10 px-4 py-3 text-sm text-yellow-200">
+          {error}
+        </div>
+      )}
 
       {/* Stat cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
