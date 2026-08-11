@@ -21,8 +21,8 @@ WORKDIR /app
 ARG SUPABASE_URL
 ARG SUPABASE_ANON_KEY
 
-# Install pnpm
-RUN npm install -g pnpm@9
+# Keep the package manager aligned with the committed lockfile format.
+RUN npm install -g pnpm@10.33.0
 
 # Copy workspace manifests first for better layer caching
 COPY pnpm-workspace.yaml package.json pnpm-lock.yaml .npmrc ./
