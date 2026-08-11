@@ -17,15 +17,37 @@ const queryClient = new QueryClient({
   },
 });
 
-function ProtectedRoute({ component: Component }: { component: React.ComponentType }) {
-  const { token, isLoading } = useAuth();
+const SUPER_ADMIN_ROLES = ["super_admin"];
+const ANY_ADMIN_ROLES = ["admin", "super_admin"];
+
+function roleHome(role?: string) {
+  return role === "super_admin" ? "/" : "/products";
+}
+
+function ProtectedRoute({
+  component: Component,
+  roles,
+}: {
+  component: React.ComponentType;
+  roles?: string[];
+}) {
+  const { token, user, isLoading } = useAuth();
   const [, navigate] = useLocation();
 
   useEffect(() => {
-    if (!isLoading && !token) navigate("/login");
-  }, [isLoading, navigate, token]);
+    if (isLoading) return;
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+    if (roles && user && !roles.includes(user.role)) {
+      // A normal admin must not be able to open super-admin-only routes.
+      navigate(roleHome(user.role));
+    }
+  }, [isLoading, navigate, token, roles, user]);
 
   if (isLoading || !token) return null;
+  if (roles && user && !roles.includes(user.role)) return null;
 
   return (
     <Layout>
@@ -38,17 +60,21 @@ function Router() {
   return (
     <Switch>
       <Route path="/login" component={Login} />
-      <Route path="/" component={() => <ProtectedRoute component={Dashboard} />} />
-      <Route path="/products" component={() => <ProtectedRoute component={Products} />} />
-      <Route path="/categories" component={() => <ProtectedRoute component={Categories} />} />
-      <Route path="/orders" component={() => <ProtectedRoute component={Orders} />} />
-      <Route path="/customers" component={() => <ProtectedRoute component={Customers} />} />
-      <Route path="/admin-requests" component={() => <ProtectedRoute component={AdminRequests} />} />
+      <Route path="/" component={() => <ProtectedRoute component={Dashboard} roles={SUPER_ADMIN_ROLES} />} />
+      <Route path="/products" component={() => <ProtectedRoute component={Products} roles={ANY_ADMIN_ROLES} />} />
+      <Route path="/categories" component={() => <ProtectedRoute component={Categories} roles={ANY_ADMIN_ROLES} />} />
+      <Route path="/orders" component={() => <ProtectedRoute component={Orders} roles={SUPER_ADMIN_ROLES} />} />
+      <Route path="/customers" component={() => <ProtectedRoute component={Customers} roles={SUPER_ADMIN_ROLES} />} />
+      <Route path="/admin-requests" component={() => <ProtectedRoute component={AdminRequests} roles={SUPER_ADMIN_ROLES} />} />
       <Route>
         {() => {
-          const { token } = useAuth();
+          const { token, user, isLoading } = useAuth();
           const [, navigate] = useLocation();
-          navigate(token ? "/" : "/login");
+          // IMPORTANT: Wait for auth restore before routing, otherwise a
+          // super_admin could be briefly redirected to /products before their
+          // role is loaded from localStorage/AuthContext.
+          if (isLoading) return null;
+          navigate(token ? roleHome(user?.role) : "/login");
           return null;
         }}
       </Route>

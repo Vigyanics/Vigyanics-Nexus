@@ -31,7 +31,7 @@ export default function Login() {
     try {
       const data = await api.post<AuthResponse>("/admin/auth/login", { email, password });
       login(data.token, data.user);
-      navigate("/");
+      navigate(data.user.role === "super_admin" ? "/" : "/products");
     } catch (err: unknown) {
       const e = err as { data?: { error?: string }; message?: string };
       setError(e?.data?.error ?? e?.message ?? "Login failed");

@@ -68,6 +68,34 @@ const STOCK_BADGE: Record<string, string> = {
   out_of_stock: "badge-cancelled",
 };
 
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <label className="block text-xs font-medium text-muted-foreground mb-1.5">{label}</label>
+      {children}
+    </div>
+  );
+}
+
+function Toggle({ label, value, onChange }: { label: string; value: boolean; onChange: (v: boolean) => void }) {
+  return (
+    <button
+      type="button"
+      onClick={() => onChange(!value)}
+      className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-xs font-medium transition-all ${
+        value
+          ? "border-primary/40 bg-primary/10 text-primary"
+          : "border-border bg-muted text-muted-foreground"
+      }`}
+    >
+      <div className={`w-3.5 h-3.5 rounded-sm border flex items-center justify-center ${value ? "border-primary bg-primary" : "border-muted-foreground"}`}>
+        {value && <Check className="w-2.5 h-2.5 text-primary-foreground" />}
+      </div>
+      {label}
+    </button>
+  );
+}
+
 export default function Products() {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -214,34 +242,6 @@ export default function Products() {
   }
 
   const pages = Math.ceil(total / limit);
-
-  function Field({ label, children }: { label: string; children: React.ReactNode }) {
-    return (
-      <div>
-        <label className="block text-xs font-medium text-muted-foreground mb-1.5">{label}</label>
-        {children}
-      </div>
-    );
-  }
-
-  function Toggle({ label, value, onChange }: { label: string; value: boolean; onChange: (v: boolean) => void }) {
-    return (
-      <button
-        type="button"
-        onClick={() => onChange(!value)}
-        className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-xs font-medium transition-all ${
-          value
-            ? "border-primary/40 bg-primary/10 text-primary"
-            : "border-border bg-muted text-muted-foreground"
-        }`}
-      >
-        <div className={`w-3.5 h-3.5 rounded-sm border flex items-center justify-center ${value ? "border-primary bg-primary" : "border-muted-foreground"}`}>
-          {value && <Check className="w-2.5 h-2.5 text-primary-foreground" />}
-        </div>
-        {label}
-      </button>
-    );
-  }
 
   return (
     <div className="space-y-6">

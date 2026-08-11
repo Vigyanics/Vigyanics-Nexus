@@ -1,12 +1,35 @@
 import { Router } from "express";
 import { supabaseAdmin } from "../../lib/supabase";
-import { requireAdmin, requireSuperAdmin } from "../../middlewares/auth";
+import { requireSuperAdmin } from "../../middlewares/auth";
 import { adminRequestToAdmin } from "./serializers";
-import type { IRouter } from "express";
+import type { IRouter, Request } from "express";
 
 const router: IRouter = Router();
 
-router.get("/admin/admin-requests", requireAdmin, async (req, res): Promise<void> => {
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+// The local-dev auth fallback uses a synthetic user id ("local-super-admin")
+// that is not a real Supabase auth uuid. `admin_requests.reviewed_by` is a
+// uuid column referencing customers(id), so a synthetic id would make Postgres
+// fail with "invalid input syntax for type uuid". Resolve the real reviewer id
+// from the persisted customers table using the authenticated email when the
+// id is not already a valid uuid.
+async function resolveReviewerId(req: Request): Promise<string | null> {
+  const userId = req.user?.userId;
+  if (userId && UUID_RE.test(userId)) return userId;
+
+  if (!req.user?.email) return null;
+
+  const { data } = await supabaseAdmin
+    .from("customers")
+    .select("id")
+    .eq("email", req.user.email)
+    .maybeSingle();
+
+  return data?.id ?? null;
+}
+
+router.get("/admin/admin-requests", requireSuperAdmin, async (req, res): Promise<void> => {
   const status = typeof req.query.status === "string" ? req.query.status : "pending";
 
   let result;
@@ -85,11 +108,13 @@ router.post("/admin/admin-requests/:id/approve", requireSuperAdmin, async (req, 
       is_active: true,
     });
 
+  const reviewerId = await resolveReviewerId(req);
+
   const { error: updateError } = await supabaseAdmin
     .from("admin_requests")
     .update({
       status: "approved",
-      reviewed_by: req.user?.userId,
+      reviewed_by: reviewerId,
       reviewed_at: new Date().toISOString(),
     })
     .eq("id", id);
@@ -105,11 +130,13 @@ router.post("/admin/admin-requests/:id/approve", requireSuperAdmin, async (req, 
 router.post("/admin/admin-requests/:id/reject", requireSuperAdmin, async (req, res): Promise<void> => {
   const { id } = req.params;
 
+  const reviewerId = await resolveReviewerId(req);
+
   const { error } = await supabaseAdmin
     .from("admin_requests")
     .update({
       status: "rejected",
-      reviewed_by: req.user?.userId,
+      reviewed_by: reviewerId,
       reviewed_at: new Date().toISOString(),
     })
     .eq("id", id)

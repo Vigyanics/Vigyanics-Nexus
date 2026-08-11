@@ -1,12 +1,12 @@
 import { Router } from "express";
 import { supabaseAdmin } from "../../lib/supabase";
-import { requireAdmin } from "../../middlewares/auth";
+import { requireSuperAdmin } from "../../middlewares/auth";
 import { orderToAdmin } from "./serializers";
 import type { IRouter } from "express";
 
 const router: IRouter = Router();
 
-router.get("/admin/orders", requireAdmin, async (req, res): Promise<void> => {
+router.get("/admin/orders", requireSuperAdmin, async (req, res): Promise<void> => {
   const { status, search, page = "1", limit = "20" } = req.query as Record<string, string>;
   const pageNum = Math.max(1, parseInt(page, 10) || 1);
   const limitNum = Math.min(100, parseInt(limit, 10) || 20);
@@ -38,7 +38,7 @@ router.get("/admin/orders", requireAdmin, async (req, res): Promise<void> => {
   res.json({ data: (data ?? []).map(orderToAdmin), total: count ?? 0, page: pageNum, limit: limitNum });
 });
 
-router.get("/admin/orders/:id", requireAdmin, async (req, res): Promise<void> => {
+router.get("/admin/orders/:id", requireSuperAdmin, async (req, res): Promise<void> => {
   const id = parseInt(String(req.params.id), 10);
   if (isNaN(id)) { res.status(400).json({ error: "Invalid id" }); return; }
 
@@ -52,7 +52,7 @@ router.get("/admin/orders/:id", requireAdmin, async (req, res): Promise<void> =>
   res.json({ ...orderToAdmin(data), orderItems: data.order_items ?? [] });
 });
 
-router.patch("/admin/orders/:id/status", requireAdmin, async (req, res): Promise<void> => {
+router.patch("/admin/orders/:id/status", requireSuperAdmin, async (req, res): Promise<void> => {
   const id = parseInt(String(req.params.id), 10);
   if (isNaN(id)) { res.status(400).json({ error: "Invalid id" }); return; }
 

@@ -92,11 +92,36 @@ function createMockClient() {
 }
 
 // Admin client — full access, service role key, server-side ONLY — never send to browser
+//
+// IMPORTANT: If the service-role key is missing we must NOT silently fall back
+// to the mock client. The mock returns empty arrays for every query and blocks
+// writes with RLS-style errors, which makes RLS-protected tables
+// (customers, admin_requests, orders) appear empty even though the code and
+// database are correct. Fail loudly so a misconfigured start is obvious.
 export const supabaseAdmin = isConfigured
   ? createClient(url, serviceRoleKey, {
       auth: { autoRefreshToken: false, persistSession: false },
     })
-  : (createMockClient() as unknown as ReturnType<typeof createClient>);
+  : (() => {
+      console.error(
+        "\n============================================================\n" +
+        "SUPABASE CONFIGURATION ERROR\n" +
+        "============================================================\n" +
+        "The API server started without a valid Supabase SERVICE ROLE key.\n" +
+        "The admin panel will show empty Customers / Admin Requests and\n" +
+        "writes (create/edit/delete products, categories, etc.) will fail.\n" +
+        "\n" +
+        "Check that SUPABASE_URL, SUPABASE_ANON_KEY and\n" +
+        "SUPABASE_SERVICE_ROLE_KEY are all set in the environment before\n" +
+        "starting the API server (see start-services.bat).\n" +
+        "============================================================\n"
+      );
+      throw new Error(
+        "supabaseAdmin requires SUPABASE_SERVICE_ROLE_KEY. " +
+        "Set SUPABASE_URL, SUPABASE_ANON_KEY and SUPABASE_SERVICE_ROLE_KEY " +
+        "before starting the API server."
+      );
+    })();
 
 // Anon client — for auth operations on behalf of users
 export const supabase = isConfigured

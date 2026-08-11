@@ -21,7 +21,7 @@ interface NavItem {
   icon: React.ReactNode;
 }
 
-const NAV_ITEMS: NavItem[] = [
+const FULL_NAV_ITEMS: NavItem[] = [
   { label: "Dashboard", path: "/", icon: <LayoutDashboard className="w-4 h-4" /> },
   { label: "Products", path: "/products", icon: <Package className="w-4 h-4" /> },
   { label: "Categories", path: "/categories", icon: <Tag className="w-4 h-4" /> },
@@ -29,16 +29,22 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Customers", path: "/customers", icon: <Users className="w-4 h-4" /> },
 ];
 
+const ADMIN_NAV_ITEMS: NavItem[] = [
+  { label: "Products", path: "/products", icon: <Package className="w-4 h-4" /> },
+  { label: "Categories", path: "/categories", icon: <Tag className="w-4 h-4" /> },
+];
+
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [location, navigate] = useLocation();
   const { user, logout } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const navItems = [
-    ...NAV_ITEMS,
-    ...(user?.role === "super_admin"
-      ? [{ label: "Admin Requests", path: "/admin-requests", icon: <UserPlus className="w-4 h-4" /> }]
-      : []),
-  ];
+  const isSuperAdmin = user?.role === "super_admin";
+  const navItems: NavItem[] = isSuperAdmin
+    ? [
+        ...FULL_NAV_ITEMS,
+        { label: "Admin Requests", path: "/admin-requests", icon: <UserPlus className="w-4 h-4" /> },
+      ]
+    : ADMIN_NAV_ITEMS;
 
   function handleLogout() {
     logout();

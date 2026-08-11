@@ -67,7 +67,7 @@ function createMockClient() {
     },
   };
 
-  return mockClient as ReturnType<typeof createClient>;
+  return mockClient as unknown as ReturnType<typeof createClient>;
 }
 
 export const supabase = isConfigured

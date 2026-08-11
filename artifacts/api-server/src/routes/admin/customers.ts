@@ -1,12 +1,12 @@
 import { Router } from "express";
 import { supabaseAdmin } from "../../lib/supabase";
-import { requireAdmin } from "../../middlewares/auth";
+import { requireSuperAdmin } from "../../middlewares/auth";
 import { customerToAdmin } from "./serializers";
 import type { IRouter } from "express";
 
 const router: IRouter = Router();
 
-router.get("/admin/customers", requireAdmin, async (req, res): Promise<void> => {
+router.get("/admin/customers", requireSuperAdmin, async (req, res): Promise<void> => {
   const { search, page = "1", limit = "20" } = req.query as Record<string, string>;
   const pageNum = Math.max(1, parseInt(page, 10) || 1);
   const limitNum = Math.min(100, parseInt(limit, 10) || 20);
@@ -39,7 +39,7 @@ router.get("/admin/customers", requireAdmin, async (req, res): Promise<void> => 
   res.json({ data: (data ?? []).map(customerToAdmin), total: count ?? 0, page: pageNum, limit: limitNum });
 });
 
-router.patch("/admin/customers/:id/status", requireAdmin, async (req, res): Promise<void> => {
+router.patch("/admin/customers/:id/status", requireSuperAdmin, async (req, res): Promise<void> => {
   const { id } = req.params;
   const { isActive } = req.body as { isActive?: boolean };
 

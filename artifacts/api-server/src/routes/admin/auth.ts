@@ -84,6 +84,15 @@ router.post("/admin/auth/login", async (req, res): Promise<void> => {
     return;
   }
 
+  // IMPORTANT: supabaseAdmin is a shared singleton configured with the
+  // service-role key (bypasses RLS). Calling signInWithPassword() on it
+  // switches the client's Authorization header to the signed-in user's
+  // access token, so every subsequent admin query would run under RLS as
+  // that user (customers/admin_requests become invisible, product/category
+  // writes break). Clear the in-memory session immediately to restore the
+  // service-role context.
+  await supabaseAdmin.auth.signOut();
+
   // Check customer profile for admin role
   const { data: profile, error: profileError } = await supabaseAdmin
     .from("customers")

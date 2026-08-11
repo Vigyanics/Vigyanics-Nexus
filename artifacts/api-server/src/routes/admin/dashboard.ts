@@ -1,12 +1,12 @@
 import { Router } from "express";
 import { supabaseAdmin } from "../../lib/supabase";
-import { requireAdmin } from "../../middlewares/auth";
+import { requireSuperAdmin } from "../../middlewares/auth";
 import { orderToAdmin } from "./serializers";
 import type { IRouter } from "express";
 
 const router: IRouter = Router();
 
-router.get("/admin/dashboard/stats", requireAdmin, async (req, res): Promise<void> => {
+router.get("/admin/dashboard/stats", requireSuperAdmin, async (req, res): Promise<void> => {
   let results;
   try {
     results = await Promise.all([
@@ -57,7 +57,7 @@ router.get("/admin/dashboard/stats", requireAdmin, async (req, res): Promise<voi
   });
 });
 
-router.get("/admin/dashboard/recent-orders", requireAdmin, async (req, res): Promise<void> => {
+router.get("/admin/dashboard/recent-orders", requireSuperAdmin, async (req, res): Promise<void> => {
   let result;
   try {
     result = await supabaseAdmin
