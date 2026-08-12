@@ -13,7 +13,7 @@
 #   JWT_SECRET
 # ============================================================================
 
-FROM node:20-slim AS build
+FROM node:22-slim AS build
 WORKDIR /app
 
 # Railway supplies service variables to Docker builds as build arguments.
@@ -63,7 +63,7 @@ RUN cd artifacts/admin \
 # ----------------------------------------------------------------------------
 # Runtime stage
 # ----------------------------------------------------------------------------
-FROM node:20-slim AS runtime
+FROM node:22-slim AS runtime
 WORKDIR /app
 
 ENV NODE_ENV=production
