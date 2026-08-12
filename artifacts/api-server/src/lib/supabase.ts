@@ -86,9 +86,7 @@ export const supabaseAdmin = isConfigured
         "Set SUPABASE_URL, SUPABASE_ANON_KEY and SUPABASE_SERVICE_ROLE_KEY " +
         "to enable full admin functionality.\n"
       );
-      return createClient(url, anonKey || "anon-key-placeholder", {
-        auth: { autoRefreshToken: false, persistSession: false },
-      }) as ReturnType<typeof createClient>;
+      return createMockClient() as ReturnType<typeof createClient>;
     })();
 
 // Anon client — for auth operations on behalf of users
