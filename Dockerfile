@@ -21,6 +21,13 @@ WORKDIR /app
 ARG SUPABASE_URL
 ARG SUPABASE_ANON_KEY
 
+# Cache bust: change this value to force a full rebuild
+ARG CACHE_BUST=2026-08-12-v2
+
+# Cache bust: change this value to force a full rebuild
+ARG CACHE_BUST=2026-08-12T21-30-00
+RUN echo "cache-bust:${CACHE_BUST}"
+
 # Keep the package manager aligned with the committed lockfile format.
 RUN npm install -g pnpm@10.33.0
 
@@ -47,9 +54,6 @@ COPY attached_assets/ attached_assets/
 
 # Build the API server (bundles workspace deps with esbuild)
 RUN cd artifacts/api-server && pnpm build
-
-# Force cache invalidation for Railway builds when source changes
-RUN echo "build-layer:$(date +%s)"
 
 # Build the store frontend (public Supabase vars are baked in at build time)
 RUN cd artifacts/vigyanics \
