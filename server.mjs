@@ -108,7 +108,7 @@ app.use("/api", (req, res) => {
 
 // --- Admin panel static files + SPA fallback --------------------------------
 app.use(ADMIN_PATH, express.static(adminDist));
-app.get(`${ADMIN_PATH}*`, (req, res, next) => {
+app.get(`${ADMIN_PATH}:splat*`, (req, res, next) => {
   if (req.path.startsWith(ADMIN_PATH)) {
     return res.sendFile(path.join(adminDist, "index.html"));
   }
@@ -117,7 +117,7 @@ app.get(`${ADMIN_PATH}*`, (req, res, next) => {
 
 // --- Store frontend static files + SPA fallback -----------------------------
 app.use(express.static(webDist));
-app.get("*", (req, res, next) => {
+app.get("/:splat*", (req, res, next) => {
   if (req.path.startsWith("/api")) {
     return next();
   }
