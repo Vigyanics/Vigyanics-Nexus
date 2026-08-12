@@ -39,7 +39,7 @@ const ADMIN_PATH = process.env.ADMIN_PATH || "/admin/";
 // ---------------------------------------------------------------------------
 // Environment diagnostics (masked)
 // ---------------------------------------------------------------------------
-function mask(v: string): string {
+function mask(v) {
   if (!v) return "(missing)";
   if (v.length <= 8) return "***";
   return v.slice(0, 4) + "..." + v.slice(-4);
