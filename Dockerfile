@@ -48,6 +48,9 @@ COPY attached_assets/ attached_assets/
 # Build the API server (bundles workspace deps with esbuild)
 RUN cd artifacts/api-server && pnpm build
 
+# Force cache invalidation for Railway builds when source changes
+RUN echo "build-layer:$(date +%s)"
+
 # Build the store frontend (public Supabase vars are baked in at build time)
 RUN cd artifacts/vigyanics \
   && BASE_PATH=/ PORT=5100 \
