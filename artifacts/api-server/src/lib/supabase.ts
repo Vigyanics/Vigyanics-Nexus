@@ -1,44 +1,8 @@
 import { createClient } from "@supabase/supabase-js";
 
-// Auto-detect correct values regardless of which env field they ended up in
-function resolveSupabaseEnv() {
-  const raw = [
-    process.env.SUPABASE_URL ?? "",
-    process.env.SUPABASE_ANON_KEY ?? "",
-    process.env.SUPABASE_SERVICE_ROLE_KEY ?? "",
-  ];
-
-  function decodeJwtRole(token: string): string | null {
-    try {
-      const payload = token.split(".")[1];
-      const decoded = JSON.parse(Buffer.from(payload, "base64").toString());
-      return decoded.role ?? null;
-    } catch {
-      return null;
-    }
-  }
-
-  const url = raw.find((v) => v.startsWith("https://"));
-  const anonKey = raw.find((v) => v.startsWith("eyJ") && decodeJwtRole(v) === "anon");
-  const serviceRoleKey = raw.find((v) => v.startsWith("eyJ") && decodeJwtRole(v) === "service_role");
-
-  return { url: url ?? "", anonKey: anonKey ?? "", serviceRoleKey: serviceRoleKey ?? "" };
-}
-
-const { url, anonKey, serviceRoleKey } = resolveSupabaseEnv();
-
-function mask(v: string): string {
-  if (!v) return "(missing)";
-  if (v.length <= 8) return "***";
-  return v.slice(0, 4) + "..." + v.slice(-4);
-}
-
-console.log("[supabase] env detection:", {
-  SUPABASE_URL: mask(url),
-  SUPABASE_ANON_KEY: mask(anonKey),
-  SUPABASE_SERVICE_ROLE_KEY: mask(serviceRoleKey),
-  isConfigured: !!(url && anonKey && serviceRoleKey),
-});
+const url = process.env.SUPABASE_URL ?? "";
+const anonKey = process.env.SUPABASE_ANON_KEY ?? "";
+const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
 
 export const supabaseUrl = url || undefined;
 export const supabaseAnonKey = anonKey || undefined;

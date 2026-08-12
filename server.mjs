@@ -37,21 +37,6 @@ const API_BASE = `http://127.0.0.1:${API_INTERNAL_PORT}`;
 const ADMIN_PATH = process.env.ADMIN_PATH || "/admin/";
 
 // ---------------------------------------------------------------------------
-// Environment diagnostics (masked)
-// ---------------------------------------------------------------------------
-function mask(v) {
-  if (!v) return "(missing)";
-  if (v.length <= 8) return "***";
-  return v.slice(0, 4) + "..." + v.slice(-4);
-}
-
-console.log("[server] env check:", {
-  SUPABASE_URL: mask(process.env.SUPABASE_URL ?? ""),
-  SUPABASE_ANON_KEY: mask(process.env.SUPABASE_ANON_KEY ?? ""),
-  SUPABASE_SERVICE_ROLE_KEY: mask(process.env.SUPABASE_SERVICE_ROLE_KEY ?? ""),
-});
-
-// ---------------------------------------------------------------------------
 // Start the API server as a child process
 // ---------------------------------------------------------------------------
 const apiServerEntry = path.join(
