@@ -80,24 +80,15 @@ export const supabaseAdmin = isConfigured
       auth: { autoRefreshToken: false, persistSession: false },
     })
   : (() => {
-      console.error(
-        "\n============================================================\n" +
-        "SUPABASE CONFIGURATION ERROR\n" +
-        "============================================================\n" +
-        "The API server started without a valid Supabase SERVICE ROLE key.\n" +
-        "The admin panel will show empty Customers / Admin Requests and\n" +
-        "writes (create/edit/delete products, categories, etc.) will fail.\n" +
-        "\n" +
-        "Check that SUPABASE_URL, SUPABASE_ANON_KEY and\n" +
-        "SUPABASE_SERVICE_ROLE_KEY are all set in the environment before\n" +
-        "starting the API server (see start-services.bat).\n" +
-        "============================================================\n"
-      );
-      throw new Error(
-        "supabaseAdmin requires SUPABASE_SERVICE_ROLE_KEY. " +
+      console.warn(
+        "\n[supabase] WARNING: SUPABASE_SERVICE_ROLE_KEY is missing. " +
+        "Admin operations (customers, admin_requests, orders) will fail. " +
         "Set SUPABASE_URL, SUPABASE_ANON_KEY and SUPABASE_SERVICE_ROLE_KEY " +
-        "before starting the API server."
+        "to enable full admin functionality.\n"
       );
+      return createClient(url, anonKey || "anon-key-placeholder", {
+        auth: { autoRefreshToken: false, persistSession: false },
+      }) as ReturnType<typeof createClient>;
     })();
 
 // Anon client — for auth operations on behalf of users

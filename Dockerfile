@@ -52,6 +52,9 @@ COPY lib/ lib/
 COPY scripts/ scripts/
 COPY attached_assets/ attached_assets/
 
+# Force rebuild when source changes (invalidates Docker layer cache)
+RUN echo "force-rebuild-$(date +%s)" > /tmp/build-cache-bust
+
 # Build the API server (bundles workspace deps with esbuild)
 RUN cd artifacts/api-server && pnpm build
 
