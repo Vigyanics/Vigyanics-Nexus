@@ -3,11 +3,10 @@ import { createClient } from "@supabase/supabase-js";
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
 
-const isConfigured = supabaseUrl && supabaseUrl.startsWith("https://");
+const isConfigured = supabaseUrl && supabaseUrl.startsWith("https://") && supabaseAnonKey;
 
 // Create a mock client when Supabase is not configured (so the admin panel can still load)
 function createMockClient() {
-  // Creates a chainable query builder that always returns itself and resolves to { data, error }
   function createQueryBuilder(): Record<string, unknown> {
     const builder: Record<string, unknown> = {};
     const chainMethods = [
@@ -65,8 +64,14 @@ function createMockClient() {
   return mockClient as unknown as ReturnType<typeof createClient>;
 }
 
-// Browser-safe client — anon key ONLY, service role key never leaves the server
-export const supabase = isConfigured
-  ? createClient(supabaseUrl!, supabaseAnonKey)
-  : createMockClient();
+let supabase: ReturnType<typeof createClient>;
+try {
+  supabase = isConfigured
+    ? createClient(supabaseUrl, supabaseAnonKey)
+    : createMockClient();
+} catch {
+  supabase = createMockClient();
+}
+
+export { supabase };
 export default supabase;

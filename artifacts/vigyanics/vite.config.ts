@@ -26,33 +26,9 @@ if (!basePath) {
   );
 }
 
-// Auto-detect swapped Supabase env vars by decoding JWT role claims
-function detectSupabaseVars() {
-  const allVals = [
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_ANON_KEY,
-    process.env.SUPABASE_SERVICE_ROLE_KEY,
-  ].filter(Boolean) as string[];
-
-  let url = "";
-  let anonKey = "";
-
-  for (const val of allVals) {
-    if (val.startsWith("https://") && val.includes(".supabase.co")) {
-      url = val;
-      continue;
-    }
-    if (!val.startsWith("eyJ")) continue;
-    try {
-      const payload = JSON.parse(Buffer.from(val.split(".")[1], "base64").toString()) as { role?: string };
-      if (payload.role === "anon") anonKey = val;
-    } catch {}
-  }
-
-  return { url, anonKey };
-}
-
-const { url: sbUrl, anonKey: sbAnonKey } = detectSupabaseVars();
+// Use exact env var names for build-time injection
+const sbUrl = process.env.SUPABASE_URL ?? "";
+const sbAnonKey = process.env.SUPABASE_ANON_KEY ?? "";
 
 export default defineConfig({
   base: basePath,
