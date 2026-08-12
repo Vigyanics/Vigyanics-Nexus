@@ -27,6 +27,19 @@ function resolveSupabaseEnv() {
 
 const { url, anonKey, serviceRoleKey } = resolveSupabaseEnv();
 
+function mask(v: string): string {
+  if (!v) return "(missing)";
+  if (v.length <= 8) return "***";
+  return v.slice(0, 4) + "..." + v.slice(-4);
+}
+
+console.log("[supabase] env detection:", {
+  SUPABASE_URL: mask(url),
+  SUPABASE_ANON_KEY: mask(anonKey),
+  SUPABASE_SERVICE_ROLE_KEY: mask(serviceRoleKey),
+  isConfigured: !!(url && anonKey && serviceRoleKey),
+});
+
 export const supabaseUrl = url || undefined;
 export const supabaseAnonKey = anonKey || undefined;
 
