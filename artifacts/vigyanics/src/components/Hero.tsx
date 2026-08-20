@@ -117,8 +117,8 @@ export default function Hero() {
               transition={{ duration: 0.8, delay: 0.65, ease: "easeOut" }}
               className="text-[2.4rem] leading-[1.1] sm:text-5xl md:text-7xl lg:text-8xl font-display font-bold tracking-tighter text-white mb-5 sm:mb-6 drop-shadow-lg"
             >
-              Turn <span className="text-vigyanics-cyan">Curiosity</span>
-              <br /> Into Real Projects
+              Where <span className="text-vigyanics-cyan">Curiosity</span>
+              <br />Meets Creation
             </motion.h1>
 
             {/* Subheading */}

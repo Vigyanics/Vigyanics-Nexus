@@ -74,7 +74,7 @@ export default function FinalCTA() {
             className="flex flex-col sm:flex-row items-center justify-center gap-4"
           >
             <motion.a
-              href="https://wa.me/919999999999?text=Hi%20Vigyanics!%20I%27d%20like%20to%20book%20a%20free%20trial."
+              href="https://wa.me/917303562190?text=Hi%20Vigyanics!%20I%27d%20like%20to%20book%20a%20free%20trial."
               target="_blank"
               rel="noopener noreferrer"
               whileHover={{ scale: 1.04, y: -2 }}
@@ -86,7 +86,7 @@ export default function FinalCTA() {
             </motion.a>
 
             <motion.a
-              href="https://wa.me/919999999999?text=Hi%20Vigyanics!%20I%27d%20like%20to%20know%20more."
+              href="https://wa.me/917303562190?text=Hi%20Vigyanics!%20I%27d%20like%20to%20know%20more."
               target="_blank"
               rel="noopener noreferrer"
               whileHover={{ scale: 1.04, y: -2 }}

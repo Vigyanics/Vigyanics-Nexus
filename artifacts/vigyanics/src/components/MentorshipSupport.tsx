@@ -47,9 +47,8 @@ export default function MentorshipSupport() {
             Expert Support
           </span>
           <h2 className="text-4xl md:text-6xl font-display font-bold text-white mt-4 mb-6 leading-tight">
-            Got Stuck?{" "}
-            <span className="text-vigyanics-cyan">We Help You</span>
-            <br />Build Further.
+            <span className="text-vigyanics-cyan">Expert Guidance</span>
+            <br />at Every Step
           </h2>
           <p className="text-lg text-gray-300 max-w-2xl mx-auto leading-relaxed">
             From understanding components to troubleshooting projects, our experts help students and makers through every stage of the journey.
@@ -90,7 +89,7 @@ export default function MentorshipSupport() {
           className="flex flex-col sm:flex-row items-center justify-center gap-4"
         >
           <motion.a
-            href="https://wa.me/919999999999?text=Hi! I need help with my STEM/Robotics project."
+            href="https://wa.me/917303562190?text=Hi! I need help with my STEM/Robotics project."
             target="_blank"
             rel="noopener noreferrer"
             whileHover={{ scale: 1.04, y: -2 }}

@@ -43,11 +43,9 @@ export default function StoreSection() {
             <span className="inline-block text-sm font-semibold tracking-widest uppercase text-vigyanics-cyan mb-4 px-4 py-1.5 rounded-full border border-vigyanics-cyan/30 bg-vigyanics-cyan/5">
               Vigyanics Store
             </span>
-            <h2 className="text-4xl md:text-5xl font-display font-bold text-vigyanics-blue mt-4 mb-4 leading-tight">
-              More Than Just
-              <br />
-              <span className="text-gradient">Electronics Components</span>
-            </h2>
+              <h2 className="text-4xl md:text-5xl font-display font-bold text-vigyanics-blue mt-4 mb-4 leading-tight">
+                Build. Experiment. Create.
+              </h2>
             <p className="text-lg text-gray-500 mb-8 leading-relaxed">
               Components, kits and practical learning support — all in one ecosystem.
             </p>

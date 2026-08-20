@@ -140,7 +140,7 @@ export default function SchoolSolutions() {
           </div>
           <div className="flex flex-col sm:flex-row gap-3 flex-shrink-0">
             <motion.a
-              href="https://wa.me/919999999999?text=Hi! I'd like to inquire about bulk/school orders from the Vigyanics Store."
+              href="https://wa.me/917303562190?text=Hi! I'd like to inquire about bulk/school orders from the Vigyanics Store."
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.97 }}
               className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-vigyanics-green text-vigyanics-blue font-bold text-sm shadow-lg"

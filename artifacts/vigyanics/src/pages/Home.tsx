@@ -1,6 +1,5 @@
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
-import TrustStats from "@/components/TrustStats";
 import ValueProp from "@/components/ValueProp";
 import Programs from "@/components/Programs";
 import HowItWorks from "@/components/HowItWorks";
@@ -9,8 +8,6 @@ import ForSchools from "@/components/ForSchools";
 import StoreSection from "@/components/StoreSection";
 import ProjectShowcase from "@/components/ProjectShowcase";
 import MentorshipSupport from "@/components/MentorshipSupport";
-import SuccessStories from "@/components/SuccessStories";
-import Testimonials from "@/components/Testimonials";
 import DesignedFor from "@/components/DesignedFor";
 import FinalCTA from "@/components/FinalCTA";
 import Footer from "@/components/Footer";
@@ -22,7 +19,6 @@ export default function Home() {
       <Navbar />
       <main>
         <Hero />
-        <TrustStats />
         <ValueProp />
         <Programs />
         <HowItWorks />
@@ -31,8 +27,6 @@ export default function Home() {
         <StoreSection />
         <ProjectShowcase />
         <MentorshipSupport />
-        <SuccessStories />
-        <Testimonials />
         <DesignedFor />
         <FinalCTA />
       </main>
